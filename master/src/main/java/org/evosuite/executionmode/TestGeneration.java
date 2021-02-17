@@ -191,7 +191,7 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "+ sut);
-			results.addAll(generateTests(Strategy.EVOSUITE,sut,args));
+			results.addAll(generateTests(Strategy.MOSUITE,sut,args));
 		}
 		return results;
 	}
