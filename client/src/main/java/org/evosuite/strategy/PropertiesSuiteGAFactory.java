@@ -115,6 +115,12 @@ public class PropertiesSuiteGAFactory
 
 	protected GeneticAlgorithm<TestSuiteChromosome> getGeneticAlgorithm(ChromosomeFactory<TestSuiteChromosome> factory) {
 		switch (Properties.ALGORITHM) {
+			case GREY_WOLF_OPTIMIZER:
+				logger.info("Chosen search algorithm: (GreyWolfOptimizer");
+				return new GreyWolfOptimizer<>(factory);
+			case GENETIC_BEE_ALGORITHM:
+				logger.info("Chosen search algorithm: GeneticBeeAlgorithm");
+				return new GeneticBeeAlgorithm<>(factory);
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
 				return new OnePlusOneEA<>(factory);

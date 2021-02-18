@@ -580,6 +580,18 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
             }
         }
     }
+    
+    protected void calculateFitness(List<T> population) {
+        logger.debug("Calculating fitness for " + population.size() + " individuals");
+
+        for (T c : population) {
+            if (isFinished()) {
+                break;
+            } else {
+                this.calculateFitness(c);
+            }
+        }
+    }
 
     /**
      * Calculate fitness for an individual
@@ -600,6 +612,12 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
         this.calculateFitness();
         // Sort population
         this.sortPopulation();
+    }
+    
+    protected void calculateFitnessAndSortPopulation(List<T> population) {
+        this.calculateFitness(population);
+        // Sort population
+        this.sortPopulation(population);
     }
 
     /**
@@ -845,6 +863,17 @@ public abstract class GeneticAlgorithm<T extends Chromosome<T>> implements Searc
      * algorithms should implement their own 'sort'
      */
     protected void sortPopulation() {
+        if (Properties.SHUFFLE_GOALS)
+            Randomness.shuffle(population);
+
+        if (isMaximizationFunction()) {
+            population.sort(Collections.reverseOrder());
+        } else {
+            Collections.sort(population);
+        }
+    }
+    
+    protected void sortPopulation(List<T> population) {
         if (Properties.SHUFFLE_GOALS)
             Randomness.shuffle(population);
 
