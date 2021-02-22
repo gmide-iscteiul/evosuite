@@ -15,19 +15,19 @@ import org.evosuite.utils.Randomness;
  *
  * @author 
  */
-public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
+public class GreyWolfOptimizer2<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8811115659916973474L;
 	//private static final long serialVersionUID = 5043503777821916152L;
 	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer.class);
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer2.class);
 	
 	/**
 	 * Constructor
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public GreyWolfOptimizer(ChromosomeFactory<T> factory) {
+	public GreyWolfOptimizer2(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
@@ -57,13 +57,13 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)
 			try {
-				if (A > 1) {
+				if (A > 1.5) {
 					// crossover
 					crossoverFunction.crossOver(wolf, alpha.clone());
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (A <= 1 || C <= 1) {
+				if (A <= 1.5 || C <= 1) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();

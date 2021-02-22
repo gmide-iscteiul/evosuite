@@ -15,19 +15,19 @@ import org.evosuite.utils.Randomness;
  *
  * @author 
  */
-public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
+public class GreyWolfOptimizer6<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8811115659916973474L;
 	//private static final long serialVersionUID = 5043503777821916152L;
 	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer.class);
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer6.class);
 	
 	/**
 	 * Constructor
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public GreyWolfOptimizer(ChromosomeFactory<T> factory) {
+	public GreyWolfOptimizer6(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
@@ -44,10 +44,10 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 		T delta=population.get(2).clone();
 		
 		newGeneration.add(alpha);
-		newGeneration.add(beta);
-		newGeneration.add(delta);
+		//newGeneration.add(beta);
+		//newGeneration.add(delta);
 		
-		for(int i=3; i < population.size(); i++) {
+		for(int i=1; i < population.size(); i++) {
 			T wolf=population.get(i).clone();
 			
 			/* 
