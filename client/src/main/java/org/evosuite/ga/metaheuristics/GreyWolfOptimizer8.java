@@ -15,19 +15,19 @@ import org.evosuite.utils.Randomness;
  *
  * @author 
  */
-public class GreyWolfOptimizer4<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
+public class GreyWolfOptimizer8<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8811115659916973474L;
 	//private static final long serialVersionUID = 5043503777821916152L;
 	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer4.class);
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer8.class);
 	
 	/**
 	 * Constructor
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public GreyWolfOptimizer4(ChromosomeFactory<T> factory) {
+	public GreyWolfOptimizer8(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
@@ -53,18 +53,18 @@ public class GreyWolfOptimizer4<T extends Chromosome<T>> extends GeneticAlgorith
 			/* 
 			 * A- exploration -> mutation || exploitation -> crossover
 			 * C- can always happens mutation
-			 * 0.30		0.76
+			 * 0.40 || 0.90
 			 */
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)
 			try {
-				if (A > 0.25) {
+				if (A > 0.1) {
 					// crossover
 					crossoverFunction.crossOver(wolf, alpha.clone());
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (A <= 0.25 || C <= 0.5) {
+				if (A <= 0.1 || C <= 1.5) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();

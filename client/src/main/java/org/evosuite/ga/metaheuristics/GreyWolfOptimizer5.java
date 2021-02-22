@@ -53,17 +53,18 @@ public class GreyWolfOptimizer5<T extends Chromosome<T>> extends GeneticAlgorith
 			/* 
 			 * A- exploration -> mutation || exploitation -> crossover
 			 * C- can always happens mutation
+			 * 0.40 || 0.80
 			 */
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)
 			try {
-				if (A > 1) {
+				if (A > 0.10) {
 					// crossover
 					crossoverFunction.crossOver(wolf, alpha.clone());
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (A <= 1 || C <= 1.5) {
+				if (A <= 0.10 || C <= 1.0) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();

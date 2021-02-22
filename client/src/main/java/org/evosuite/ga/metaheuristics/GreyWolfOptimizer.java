@@ -53,6 +53,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			/* 
 			 * A- exploration -> mutation || exploitation -> crossover
 			 * C- can always happens mutation
+			 * 0.07 || 0.96
 			 */
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)

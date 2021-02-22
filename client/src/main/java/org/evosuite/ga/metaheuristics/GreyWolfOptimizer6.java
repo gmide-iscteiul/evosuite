@@ -44,26 +44,27 @@ public class GreyWolfOptimizer6<T extends Chromosome<T>> extends GeneticAlgorith
 		T delta=population.get(2).clone();
 		
 		newGeneration.add(alpha);
-		//newGeneration.add(beta);
-		//newGeneration.add(delta);
+		newGeneration.add(beta);
+		newGeneration.add(delta);
 		
-		for(int i=1; i < population.size(); i++) {
+		for(int i=3; i < population.size(); i++) {
 			T wolf=population.get(i).clone();
 			
 			/* 
 			 * A- exploration -> mutation || exploitation -> crossover
 			 * C- can always happens mutation
+			 * 0.40 || 0.70
 			 */
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)
 			try {
-				if (A > 1) {
+				if (A > 0.10) {
 					// crossover
 					crossoverFunction.crossOver(wolf, alpha.clone());
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (A <= 1 || C <= 1) {
+				if (A <= 0.10 || C <= 0.5) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();
