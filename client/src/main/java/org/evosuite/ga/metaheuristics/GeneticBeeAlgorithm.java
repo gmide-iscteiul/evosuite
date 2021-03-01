@@ -24,15 +24,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 	private static final long serialVersionUID = -8557609199714500045L;
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
-	
-	private static final int LIMIT=3;
-	private static final int NUMBER_OF_SCOUTS=2;
-	private Comparator<T> badFood = new Comparator<T>() {
-		public int compare(T bee_1, T bee_2) {
-			return (int) (bee_2.getDistance()-bee_1.getDistance());
-		}
-	};
-	
+		
 	/**
 	 * Constructor
 	 *
@@ -84,25 +76,25 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
-		List<T> employees = new ArrayList<>();
+		List<T> newGeneration = new ArrayList<>();
 
 		// employee bee phase
 		for (int i = 0; i < population.size(); i++) {
 			T employee_bee = population.get(i);
 			try {
-				employees.add(discoverNewFood(employee_bee));
+				newGeneration.add(discoverNewFood(employee_bee));
 			} catch (ConstructionFailedException e) {
 				logger.info("CrossOver/Mutation failed.");
-				employees.add(employee_bee);
+				newGeneration.add(employee_bee);
 				continue;
 			}
 		}
 
-		List<T> newGeneration = new ArrayList<>();
 		// onlooker bee phase
-		for (int i = 0; i < population.size(); i++) {
-			T onlooker_bee = selectionFunction.select(employees);
+		for (double i = 0; i < population.size()*Properties.ONLOOKER_BEE_RATE; i++) {
+			T onlooker_bee = selectionFunction.select(newGeneration);
 			try {
+				newGeneration.remove(onlooker_bee);
 				newGeneration.add(discoverNewFood(onlooker_bee));
 			} catch (ConstructionFailedException e) {
 				logger.info("CrossOver/Mutation failed.");
@@ -112,16 +104,17 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		}
 
 		// scout bee phase
-		Collections.sort(newGeneration, badFood);
-		for (int i = 0; i < NUMBER_OF_SCOUTS; i++) {
-			T scout_bee = newGeneration.get(0);
-			if (scout_bee.getDistance() > LIMIT) {
+		sortPopulation(newGeneration);
+
+		for (int i = (population.size()-1), j=0; i > 0 && j< Properties.NUMBER_OF_SCOUTS; i--) {
+			T scout_bee = newGeneration.get(i);
+			if (scout_bee.getDistance() > Properties.LIMIT) {
 				newGeneration.remove(scout_bee);
 				T newFoodSource = chromosomeFactory.getChromosome();
 				fitnessFunctions.forEach(newFoodSource::addFitness);
 				newGeneration.add(newFoodSource);
-			} else
-				break;
+				j++;
+			}
 		}
 
 		population = newGeneration;
@@ -169,7 +162,8 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
-			
+			System.out.println(Properties.NUMBER_OF_SCOUTS);
+			System.out.println(Properties.LIMIT);
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();

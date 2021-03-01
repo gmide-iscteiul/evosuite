@@ -25,6 +25,7 @@ public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
 	    Properties.POPULATION = 25;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
+	    Properties.NUMBER_OF_SCOUTS=5;
 	   
 	    EvoSuite evosuite = new EvoSuite();
 

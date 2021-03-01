@@ -36,8 +36,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>();
 		
-		//double a = 2.0-((double)currentIteration*(2.0/(double)Properties.SEARCH_BUDGET)); 
-		double a=2*this.progress();	//unlike the above "a", this one increases during search.
+		double a=2*(1.0-this.progress());	//[2,0] adapted to all stopping conditions
 		
 		T alpha=population.get(0).clone();
 		T beta=population.get(1).clone();
@@ -52,19 +51,19 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			
 			/* 
 			 * A- exploration -> mutation || exploitation -> crossover
-			 * C- can always happens mutation
-			 * 0.07 || 0.96
+			 * C- emphasizes mutation
+			 * 
 			 */
 			double A = 2 * a * Randomness.nextDouble() - a;// Equation (3.3)
 			double C = 2 * Randomness.nextDouble(); // Equation (3.4)
 			try {
-				if (A > 1) {
+				if (Math.abs(A) < 2*Properties.CROSSOVER_RATE) {
 					// crossover
 					crossoverFunction.crossOver(wolf, alpha.clone());
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (A <= 1 || C <= 1) {
+				if (Math.abs(A) >= 2*Properties.CROSSOVER_RATE || C >= 2*Properties.MUTATION_RATE) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();

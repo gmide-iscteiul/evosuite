@@ -118,27 +118,6 @@ public class PropertiesSuiteGAFactory
 			case GREY_WOLF_OPTIMIZER:
 				logger.info("Chosen search algorithm: (GreyWolfOptimizer");
 				return new GreyWolfOptimizer<>(factory);
-			case GREY_WOLF_OPTIMIZER2:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer2");
-				return new GreyWolfOptimizer2<>(factory);
-			case GREY_WOLF_OPTIMIZER3:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer3");
-				return new GreyWolfOptimizer3<>(factory);
-			case GREY_WOLF_OPTIMIZER4:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer4");
-				return new GreyWolfOptimizer4<>(factory);
-			case GREY_WOLF_OPTIMIZER5:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer5");
-				return new GreyWolfOptimizer5<>(factory);
-			case GREY_WOLF_OPTIMIZER6:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer6");
-				return new GreyWolfOptimizer6<>(factory);
-			case GREY_WOLF_OPTIMIZER7:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer7");
-				return new GreyWolfOptimizer7<>(factory);
-			case GREY_WOLF_OPTIMIZER8:
-				logger.info("Chosen search algorithm: (GreyWolfOptimizer8");
-				return new GreyWolfOptimizer8<>(factory);
 			case GENETIC_BEE_ALGORITHM:
 				logger.info("Chosen search algorithm: GeneticBeeAlgorithm");
 				return new GeneticBeeAlgorithm<>(factory);
