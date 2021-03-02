@@ -162,8 +162,6 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
-			System.out.println(Properties.NUMBER_OF_SCOUTS);
-			System.out.println(Properties.LIMIT);
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
