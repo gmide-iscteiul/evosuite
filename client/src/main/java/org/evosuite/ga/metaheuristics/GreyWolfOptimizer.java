@@ -69,7 +69,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 					wolf.mutate();
 				}
 			} catch (ConstructionFailedException e) {
-				logger.info("CrossOver/Mutation failed.");
+				logger.info("Crossover/Mutation failed.");
 				continue;
 			}
 			if (wolf.isChanged()) {

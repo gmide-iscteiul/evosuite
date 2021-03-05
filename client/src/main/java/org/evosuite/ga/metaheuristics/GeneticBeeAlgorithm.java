@@ -1,15 +1,14 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.operators.selection.FitnessProportionateSelection;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
 
@@ -32,6 +31,13 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 	 */
 	public GeneticBeeAlgorithm(ChromosomeFactory<T> factory) {
 		super(factory);
+		
+		if (Properties.SELECTION_FUNCTION != SelectionFunction.ROULETTEWHEEL) {
+			LoggingUtils.getEvoLogger()
+					.warn("Originally, Genetic Bee Algorithm was implemented with a '"
+							+ SelectionFunction.ROULETTEWHEEL.name()
+							+ "' selection function. You may want to consider using it.");
+		}
 	}
 
 	private T discoverNewFood(T bee) throws ConstructionFailedException {
@@ -84,7 +90,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			try {
 				newGeneration.add(discoverNewFood(employee_bee));
 			} catch (ConstructionFailedException e) {
-				logger.info("CrossOver/Mutation failed.");
+				logger.info("Crossover/Mutation failed.");
 				newGeneration.add(employee_bee);
 				continue;
 			}
@@ -97,7 +103,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				newGeneration.remove(onlooker_bee);
 				newGeneration.add(discoverNewFood(onlooker_bee));
 			} catch (ConstructionFailedException e) {
-				logger.info("CrossOver/Mutation failed.");
+				logger.info("Crossover/Mutation failed.");
 				newGeneration.add(onlooker_bee);
 				continue;
 			}
@@ -157,7 +163,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
 		} 
-		setSelectionFunction(new FitnessProportionateSelection<>()); //roullete wheel selection
+		//setSelectionFunction(new FitnessProportionateSelection<>()); //roullete wheel selection
 		
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);

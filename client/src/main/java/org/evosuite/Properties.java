@@ -318,7 +318,7 @@ public class Properties {
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2,
 		//SIAs
-		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM
+		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM
 	}
 
 	// MOSA PROPERTIES
