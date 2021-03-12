@@ -4,30 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
 /**
- * GreyWolfOptimizer implementation
+ * GeneticBeeAlgorithm implementation
  *
  * @author
  */
-public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
+public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	private static final long serialVersionUID = 1178004502227853389L;
 	// private static final long serialVersionUID = 5043503777821916152L;
-
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WhaleOptimizationAlgorithm.class);
+	private static final long serialVersionUID = -8855862003166456459L;
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CatSwarmOptimization.class);
 
 	/**
 	 * Constructor
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public WhaleOptimizationAlgorithm(ChromosomeFactory<T> factory) {
+	public CatSwarmOptimization(ChromosomeFactory<T> factory) {
 		super(factory);
+
+		if (Properties.SELECTION_FUNCTION != SelectionFunction.ROULETTEWHEEL) {
+			LoggingUtils.getEvoLogger()
+					.warn("Originally, Cat Swarm Optimization was implemented with a '"
+							+ SelectionFunction.ROULETTEWHEEL.name()
+							+ "' selection function. You may want to consider using it.");
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -35,49 +43,48 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>();
 
-		double a = 2 * (1.0 - this.progress()); // [2,0] adapted to all stopping conditions
+		T bestCat = population.get(0);
+		newGeneration.add(bestCat);
 
-		T bestWhale = population.get(0).clone();
-
-		newGeneration.add(bestWhale);
-
+		double ratio;
 		for (int i = 1; i < population.size(); i++) {
-			T whale = population.get(i).clone();
-
-			/*
-			 * A- exploration -> crossover with random whale || exploitation -> crossover
-			 * with best whale 
-			 * C- mutation 
-			 * Spiral movement -> mutation
-			 */
-			double A = 2 * a * Randomness.nextDouble() - a;// Equation (2.3)
-			double C = 2 * Randomness.nextDouble(); // Equation (2.4)
-			double p = Randomness.nextDouble();
-			try {
-				if (p < 0.5) {
-					if (Math.abs(A) < Properties.CROSSOVER_RATE) {	//shrinking encircling mechanism
-						crossoverFunction.crossOver(whale, bestWhale.clone());
-					} else { // search for prey
-						T randomWhale = population.get(Randomness.nextInt(population.size()));
-						crossoverFunction.crossOver(whale, randomWhale.clone());
+			ratio = Randomness.nextDouble();
+			T cat = population.get(i);
+			if (ratio < Properties.CROSSOVER_RATE) { // tracing mode
+				try {
+					crossoverFunction.crossOver(cat, bestCat.clone());
+					if (cat.isChanged()) {
+						cat.updateAge(currentIteration);
 					}
-					if (C >= 2 * Properties.MUTATION_RATE) { // both depend on C for randomness
-						notifyMutation(whale);
-						whale.mutate();
-					}
-				} else { // spiral updating position
-					notifyMutation(whale);
-					whale.mutate();
+				} catch (ConstructionFailedException e) {
+					logger.info("Crossover/Mutation failed.");
+				} finally {
+					newGeneration.add(cat);
 				}
-				if (whale.isChanged()) {
-					whale.updateAge(currentIteration);
+			} else { // seeking mode
+				int number_of_copies;
+				List<T> list_of_copies = new ArrayList<>();
+				if (Properties.SELF_POSITION_CONSIDERATION) { // current possition counts
+					number_of_copies = Properties.SEEKING_MEMORY_POOL - 1;
+					list_of_copies.add(cat);
+				} else {
+					number_of_copies = Properties.SEEKING_MEMORY_POOL;
 				}
-			} catch (ConstructionFailedException e) {
-				logger.info("Crossover/Mutation failed.");
-			} finally {
-				newGeneration.add(whale);
+				for (int j = 0; j < number_of_copies; j++) {
+					T copy = cat.clone();
+					notifyMutation(copy);
+					copy.mutate();
+					list_of_copies.add(copy);
+				}
+				calculateFitnessAndSortPopulation(list_of_copies);
+				T newGenCat = selectionFunction.select(list_of_copies);
+				newGeneration.add(newGenCat);
+				if (!newGenCat.equals(cat)) {
+					newGenCat.updateAge(currentIteration);
+				}
 			}
 		}
+
 		population = newGeneration;
 		// archive
 		updateFitnessFunctionsAndValues();
@@ -120,7 +127,6 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
-
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();

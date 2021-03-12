@@ -124,6 +124,9 @@ public class PropertiesSuiteGAFactory
 			case WHALE_OPTIMIZATION_ALGORITHM:
 				logger.info("Chosen search algorithm: WhaleOptimizationAlgorithm");
 				return new WhaleOptimizationAlgorithm<>(factory);
+			case CAT_SWARM_OPTIMIZATION:
+					logger.info("Chosen search algorithm: CatSwarmOptimization");
+					return new CatSwarmOptimization<>(factory);
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
 				return new OnePlusOneEA<>(factory);

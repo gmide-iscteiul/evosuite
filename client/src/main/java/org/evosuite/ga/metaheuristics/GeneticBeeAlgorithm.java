@@ -11,19 +11,18 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
-
 /**
  * GeneticBeeAlgorithm implementation
  *
- * @author 
+ * @author
  */
 public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	//private static final long serialVersionUID = 5043503777821916152L;
+	// private static final long serialVersionUID = 5043503777821916152L;
 	private static final long serialVersionUID = -8557609199714500045L;
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
-		
+
 	/**
 	 * Constructor
 	 *
@@ -31,7 +30,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 	 */
 	public GeneticBeeAlgorithm(ChromosomeFactory<T> factory) {
 		super(factory);
-		
+
 		if (Properties.SELECTION_FUNCTION != SelectionFunction.ROULETTEWHEEL) {
 			LoggingUtils.getEvoLogger()
 					.warn("Originally, Genetic Bee Algorithm was implemented with a '"
@@ -67,12 +66,13 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		foodSources.add(child_2);
 		foodSources.add(grandchild_1);
 		foodSources.add(grandchild_2);
-		calculateFitnessAndSortPopulation(foodSources); //added method to GA class
+		calculateFitnessAndSortPopulation(foodSources); // added method to GA class
 
 		T currentFood = foodSources.get(0);
 
 		if (!currentFood.equals(bee)) { // if a better food source was found
 			currentFood.updateAge(currentIteration);
+			currentFood.setDistance(0);
 		} else {
 			currentFood.setDistance(currentFood.getDistance() + 1);
 		}
@@ -97,7 +97,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		}
 
 		// onlooker bee phase
-		for (double i = 0; i < population.size()*Properties.ONLOOKER_BEE_RATE; i++) {
+		for (double i = 0; i < population.size() * Properties.ONLOOKER_BEE_RATE; i++) {
 			T onlooker_bee = selectionFunction.select(newGeneration);
 			try {
 				newGeneration.remove(onlooker_bee);
@@ -112,7 +112,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		// scout bee phase
 		sortPopulation(newGeneration);
 
-		for (int i = (population.size()-1), j=0; i > 0 && j< Properties.NUMBER_OF_SCOUTS; i--) {
+		for (int i = (population.size() - 1), j = 0; i > 0 && j < Properties.NUMBER_OF_SCOUTS; i--) {
 			T scout_bee = newGeneration.get(i);
 			if (scout_bee.getDistance() > Properties.LIMIT) {
 				newGeneration.remove(scout_bee);
@@ -141,15 +141,13 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		// Determine fitness
 		calculateFitnessAndSortPopulation();
 
-		
 		this.notifyIteration();
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
-		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0
-				|| Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
+		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
 		if (population.isEmpty())
@@ -159,46 +157,47 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		int starvationCounter = 0;
 		double bestFitness = Double.MAX_VALUE;
 		double lastBestFitness = Double.MAX_VALUE;
-		if (getFitnessFunction().isMaximizationFunction()){
+		if (getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
-		} 
-		//setSelectionFunction(new FitnessProportionateSelection<>()); //roullete wheel selection
-		
+		}
+		// setSelectionFunction(new FitnessProportionateSelection<>()); //roullete wheel
+		// selection
+
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 			evolve();
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
-			
-		//////remove Local Search?
-			//applyLocalSearch();	
-			
+
+			////// remove Local Search?
+			// applyLocalSearch();
+
 			double newFitness = getBestIndividual().getFitness();
 
 			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness) : "best fitness was: " + bestFitness
-						+ ", now best fitness is " + newFitness;
+				assert (newFitness >= bestFitness)
+						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
 			else
-				assert (newFitness <= bestFitness) : "best fitness was: " + bestFitness
-						+ ", now best fitness is " + newFitness;
+				assert (newFitness <= bestFitness)
+						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
 			bestFitness = newFitness;
-			
+
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;
 			} else {
 				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
 				starvationCounter = 0;
 				lastBestFitness = bestFitness;
-				
+
 			}
-			
+
 			updateSecondaryCriterion(starvationCounter);
-			
+
 			this.notifyIteration();
 		}
-		
+
 		updateBestIndividualFromArchive();
 		notifySearchFinished();
 	}

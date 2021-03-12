@@ -318,7 +318,7 @@ public class Properties {
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2,
 		//SIAs
-		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM
+		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM, CAT_SWARM_OPTIMIZATION
 	}
 
 	// MOSA PROPERTIES
@@ -753,20 +753,31 @@ public class Properties {
 	public static double EPSON = 0.01;
 
 	// ---------------------------------------------------------------
-		// Genetic Bee Algorithm Parameters
+	// Genetic Bee Algorithm Parameters
 
-		@Parameter(key = "number_of_scouts", group = "Genetic Bee Algorithm", description = "Number of scout bees")
-		@IntValue(min = 1)
-		public static int NUMBER_OF_SCOUTS = 1;
+	@Parameter(key = "number_of_scouts", group = "Genetic Bee Algorithm", description = "Number of scout bees")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_SCOUTS = 1;
 
-		@Parameter(key = "onlooker_bee_rate", group = "Genetic Bee Algorithm", description = "Rate of onlooker bees compared with population")
-		@DoubleValue(min = 0.0, max = 1.0)
-		public static double ONLOOKER_BEE_RATE = 1.0;
+	@Parameter(key = "onlooker_bee_rate", group = "Genetic Bee Algorithm", description = "Rate of onlooker bees compared with population")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double ONLOOKER_BEE_RATE = 1.0;
 
-		@Parameter(key = "limit", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
-		@IntValue(min = 1)
-		public static int LIMIT = 3;
+	@Parameter(key = "limit", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
+	@IntValue(min = 1)
+	public static int LIMIT = 3;
 	
+	// ---------------------------------------------------------------	
+	// ---------------------------------------------------------------
+	// Cat Swarm Optimizer Parameters
+
+	@Parameter(key = "self_position_consideration", group = "Cat Swarm Optimizer", description = "Current position of the cat can be selected for next generation while in seeking mode")
+	public static boolean SELF_POSITION_CONSIDERATION = false;
+
+	@Parameter(key = "seeking_memory_pool", group = "Cat Swarm Optimizer", description = "Number of copies of the cat while in seeking mode")
+	@IntValue(min = 2)
+	public static int SEEKING_MEMORY_POOL = 3;
+			
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
 
