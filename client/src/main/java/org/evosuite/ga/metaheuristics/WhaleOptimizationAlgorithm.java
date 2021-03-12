@@ -54,8 +54,8 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 			double C = 2 * Randomness.nextDouble(); // Equation (2.4)
 			double p = Randomness.nextDouble();
 			try {
-				if (p < 0.5) {
-					if (Math.abs(A) < Properties.CROSSOVER_RATE) {	//shrinking encircling mechanism
+				if (p < Properties.CROSSOVER_RATE) {
+					if (Math.abs(A) < 2 * Properties.SHRINKING_ENCIRCLING_MECHANISM_RATE) {	//shrinking encircling mechanism
 						crossoverFunction.crossOver(whale, bestWhale.clone());
 					} else { // search for prey
 						T randomWhale = population.get(Randomness.nextInt(population.size()));

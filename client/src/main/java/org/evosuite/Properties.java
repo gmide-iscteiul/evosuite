@@ -779,6 +779,13 @@ public class Properties {
 	public static int SEEKING_MEMORY_POOL = 3;
 			
 	// ---------------------------------------------------------------
+	// Whale Optimizer Parameters
+
+	@Parameter(key = "shrinking_encircling_mechanism_rate", group = "Whale Optimization Algorithm", description = "Probability of shrinking encircling mechanism")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double SHRINKING_ENCIRCLING_MECHANISM_RATE = 0.5;
+				
+	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
 
 	@Parameter(key = "kinetic_energy_loss_rate", group = "Chemical Reaction Optimization", description = "Rate at which molecules lose kinetic energy")
