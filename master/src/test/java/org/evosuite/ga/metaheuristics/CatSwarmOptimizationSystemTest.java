@@ -8,6 +8,7 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
 import org.junit.Assert;
@@ -16,15 +17,15 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
 import com.examples.with.different.packagename.XMLElement2;
 
-public class GreyWolfOptimizerSystemTest extends SystemTestBase{
-	
+public class CatSwarmOptimizationSystemTest extends SystemTestBase {
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
-		Properties.ALGORITHM = Algorithm.GREY_WOLF_OPTIMIZER;
+		Properties.ALGORITHM = Algorithm.CAT_SWARM_OPTIMIZATION;
 	    Properties.POPULATION = 25;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
+	    Properties.SELECTION_FUNCTION=SelectionFunction.ROULETTEWHEEL;
 	    	   
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -44,9 +45,9 @@ public class GreyWolfOptimizerSystemTest extends SystemTestBase{
 	}
 
 	@Test
-	public void testGreyWolfOptimizerWithLimitedTime(){
+	public void testGeneticBeeAlgorithmWithLimitedTime(){
 		
-		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 10, XMLElement2.class.getCanonicalName());
+		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 		
 	    for (Chromosome p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
@@ -54,7 +55,7 @@ public class GreyWolfOptimizerSystemTest extends SystemTestBase{
 	}
 	
 	@Test
-	public void testGreyWolfOptimizerWithLimitedGenerations(){
+	public void testGeneticBeeAlgorithmWithLimitedGenerations(){
 		
 	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 	    

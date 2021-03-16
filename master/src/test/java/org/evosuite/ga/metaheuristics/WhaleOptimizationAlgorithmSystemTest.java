@@ -16,16 +16,15 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
 import com.examples.with.different.packagename.XMLElement2;
 
-public class GreyWolfOptimizerSystemTest extends SystemTestBase{
-	
+public class WhaleOptimizationAlgorithmSystemTest extends SystemTestBase{
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
-		Properties.ALGORITHM = Algorithm.GREY_WOLF_OPTIMIZER;
+		Properties.ALGORITHM = Algorithm.WHALE_OPTIMIZATION_ALGORITHM;
 	    Properties.POPULATION = 25;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
-	    	   
+	   
 	    EvoSuite evosuite = new EvoSuite();
 
 	    String targetClass = cut;
@@ -44,9 +43,9 @@ public class GreyWolfOptimizerSystemTest extends SystemTestBase{
 	}
 
 	@Test
-	public void testGreyWolfOptimizerWithLimitedTime(){
+	public void testGeneticBeeAlgorithmWithLimitedTime(){
 		
-		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 10, XMLElement2.class.getCanonicalName());
+		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 		
 	    for (Chromosome p : population) {
             Assert.assertNotEquals(p.getCoverage(), 1.0);
@@ -54,7 +53,7 @@ public class GreyWolfOptimizerSystemTest extends SystemTestBase{
 	}
 	
 	@Test
-	public void testGreyWolfOptimizerWithLimitedGenerations(){
+	public void testGeneticBeeAlgorithmWithLimitedGenerations(){
 		
 	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 	    

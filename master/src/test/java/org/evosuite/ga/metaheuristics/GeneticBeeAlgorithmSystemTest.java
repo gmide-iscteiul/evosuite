@@ -8,6 +8,7 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
 import org.junit.Assert;
@@ -25,7 +26,7 @@ public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
 	    Properties.POPULATION = 25;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
-	    Properties.NUMBER_OF_SCOUTS=5;
+	    Properties.SELECTION_FUNCTION=SelectionFunction.ROULETTEWHEEL;
 	   
 	    EvoSuite evosuite = new EvoSuite();
 
