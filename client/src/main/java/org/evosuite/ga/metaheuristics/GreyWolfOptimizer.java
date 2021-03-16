@@ -62,7 +62,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 					crossoverFunction.crossOver(wolf, beta.clone());
 					crossoverFunction.crossOver(wolf, delta.clone());
 				}
-				if (Math.abs(A) >= 2 * Properties.CROSSOVER_RATE || C >= 2 * Properties.MUTATION_RATE) {
+				if (Math.abs(A) >= 2 * Properties.CROSSOVER_RATE || C <= 2 * Properties.MUTATION_RATE) {
 					// mutation
 					notifyMutation(wolf);
 					wolf.mutate();

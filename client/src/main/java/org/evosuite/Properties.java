@@ -765,7 +765,7 @@ public class Properties {
 
 	@Parameter(key = "limit", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
 	@IntValue(min = 1)
-	public static int LIMIT = 3;
+	public static int LIMIT = 5;
 	
 	// ---------------------------------------------------------------	
 	// ---------------------------------------------------------------
@@ -776,7 +776,7 @@ public class Properties {
 
 	@Parameter(key = "seeking_memory_pool", group = "Cat Swarm Optimizer", description = "Number of copies of the cat while in seeking mode")
 	@IntValue(min = 2)
-	public static int SEEKING_MEMORY_POOL = 3;
+	public static int SEEKING_MEMORY_POOL = 6;
 			
 	// ---------------------------------------------------------------
 	// Whale Optimizer Parameters

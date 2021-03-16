@@ -61,7 +61,7 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 						T randomWhale = population.get(Randomness.nextInt(population.size()));
 						crossoverFunction.crossOver(whale, randomWhale.clone());
 					}
-					if (C >= 2 * Properties.MUTATION_RATE) { // both depend on C for randomness
+					if (C <= 2 * Properties.MUTATION_RATE) { // both depend on C for randomness
 						notifyMutation(whale);
 						whale.mutate();
 					}
