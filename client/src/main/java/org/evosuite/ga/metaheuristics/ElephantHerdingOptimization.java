@@ -66,10 +66,10 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			notifyMutation(elephant_matriarch);
 			elephant_matriarch.mutate();
 			newGeneration.add(elephant_matriarch);
-			int index_start = i * population.size() / Properties.NUMBER_OF_ELEPHANT_CLANS
-					+ Properties.NUMBER_OF_ELEPHANT_CLANS;
-			int index_end = (i + 1) * population.size() / Properties.NUMBER_OF_ELEPHANT_CLANS
-					+ Properties.NUMBER_OF_ELEPHANT_CLANS;
+			int index_start = i * (population.size() - Properties.NUMBER_OF_ELEPHANT_CLANS)
+					/ Properties.NUMBER_OF_ELEPHANT_CLANS + Properties.NUMBER_OF_ELEPHANT_CLANS;
+			int index_end = (i + 1) * (population.size() - Properties.NUMBER_OF_ELEPHANT_CLANS)
+					/ Properties.NUMBER_OF_ELEPHANT_CLANS + Properties.NUMBER_OF_ELEPHANT_CLANS;
 
 			if (index_end > population.size()) {
 				index_end = population.size();
