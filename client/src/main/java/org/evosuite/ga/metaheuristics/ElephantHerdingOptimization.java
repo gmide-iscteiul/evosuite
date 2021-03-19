@@ -90,7 +90,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// male separation
 		for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN * Properties.NUMBER_OF_ELEPHANT_CLANS; j++) {
 			// eq 4 - male elephant = (replaced by a new individual)
-			population.remove(population.size() - 1 - j);
+			population.remove(population.size() - 1);
 			T newElephant = chromosomeFactory.getChromosome();
 			fitnessFunctions.forEach(newElephant::addFitness);
 			newGeneration.add(newElephant);
