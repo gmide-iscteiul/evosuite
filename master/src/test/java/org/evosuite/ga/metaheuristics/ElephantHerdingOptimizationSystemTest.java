@@ -8,7 +8,6 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTestBase;
 import org.evosuite.Properties.Algorithm;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.ga.Chromosome;
 import org.junit.Assert;
@@ -17,16 +16,15 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
 import com.examples.with.different.packagename.XMLElement2;
 
-public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
+public class ElephantHerdingOptimizationSystemTest extends SystemTestBase{
 	
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
-		Properties.ALGORITHM = Algorithm.GENETIC_BEE_ALGORITHM;
+		Properties.ALGORITHM = Algorithm.ELEPHANT_HERDING_OPTIMIZATION;
 	    Properties.POPULATION = 25;
 	    Properties.STOPPING_CONDITION = sc;
 	    Properties.SEARCH_BUDGET = budget;
-	    Properties.SELECTION_FUNCTION=SelectionFunction.ROULETTEWHEEL;
 
 	    EvoSuite evosuite = new EvoSuite();
 
@@ -46,7 +44,7 @@ public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
 	}
 
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedTime(){
+	public void testElephantHerdingOptimizationWithLimitedTime(){
 		
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 		
@@ -56,7 +54,7 @@ public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
 	}
 	
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedGenerations(){
+	public void testElephantHerdingOptimizationWithLimitedGenerations(){
 		
 	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 	    

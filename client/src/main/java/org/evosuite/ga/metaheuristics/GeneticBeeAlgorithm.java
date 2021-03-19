@@ -18,10 +18,11 @@ import org.evosuite.utils.Randomness;
  */
 public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	// private static final long serialVersionUID = 5043503777821916152L;
 	private static final long serialVersionUID = -8557609199714500045L;
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
+
+	private boolean addNewBee=false;
 
 	/**
 	 * Constructor
@@ -118,8 +119,10 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				newGeneration.remove(scout_bee);
 				T newFoodSource = chromosomeFactory.getChromosome();
 				fitnessFunctions.forEach(newFoodSource::addFitness);
-				newGeneration.add(newFoodSource);
+				calculateFitness(newFoodSource);
+				newGeneration.add(newFoodSource);				
 				j++;
+				addNewBee=true;
 			}
 		}
 
@@ -168,8 +171,11 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 			evolve();
-			// Determine fitness
-			calculateFitnessAndSortPopulation();
+			if(addNewBee) {
+				sortPopulation();
+				addNewBee=false;
+			}
+			
 
 			////// remove Local Search?
 			// applyLocalSearch();
