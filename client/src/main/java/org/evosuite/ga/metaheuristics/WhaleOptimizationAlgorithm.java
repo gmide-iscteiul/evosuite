@@ -10,7 +10,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.Randomness;
 
 /**
- * GreyWolfOptimizer implementation
+ * WhaleOptimizationAlgorithm implementation
  *
  * @author
  */

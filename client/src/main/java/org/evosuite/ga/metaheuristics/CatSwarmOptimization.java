@@ -12,7 +12,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 
 /**
- * GeneticBeeAlgorithm implementation
+ * CatSwarmOptimization implementation
  *
  * @author
  */

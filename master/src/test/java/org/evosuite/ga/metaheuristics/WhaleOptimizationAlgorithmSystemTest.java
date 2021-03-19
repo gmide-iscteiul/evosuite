@@ -43,7 +43,7 @@ public class WhaleOptimizationAlgorithmSystemTest extends SystemTestBase{
 	}
 
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedTime(){
+	public void testWhaleOptimizationAlgorithmWithLimitedTime(){
 		
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 		
@@ -53,7 +53,7 @@ public class WhaleOptimizationAlgorithmSystemTest extends SystemTestBase{
 	}
 	
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedGenerations(){
+	public void testWhaleOptimizationAlgorithmWithLimitedGenerations(){
 		
 	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
 	    
