@@ -786,6 +786,21 @@ public class Properties {
 	public static double SHRINKING_ENCIRCLING_MECHANISM_RATE = 0.5;
 				
 	// ---------------------------------------------------------------
+	// Elephant Herding Optimization Parameters
+
+	@Parameter(key = "number_of_elephant_clans", group = "Elephant Herding Optimization", description = "The number of elephant clans")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_ELEPHANT_CLANS = 1;
+		
+	@Parameter(key = "number_of_elephant_per_clan", group = "Elephant Herding Optimization", description = "The number of elephant per clan")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_ELEPHANT_PER_CLAN = 1;
+		
+	@Parameter(key = "number_of_male_elephants_per_clan", group = "Elephant Herding Optimization", description = "The number of male elephants in each clan")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = 1;
+					
+	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
 
 	@Parameter(key = "kinetic_energy_loss_rate", group = "Chemical Reaction Optimization", description = "Rate at which molecules lose kinetic energy")
