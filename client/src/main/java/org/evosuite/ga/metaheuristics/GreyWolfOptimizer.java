@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GreyWolfOptimizer implementation
@@ -17,7 +20,7 @@ import org.evosuite.utils.Randomness;
 public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8811115659916973474L;
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer.class);
+	private final Logger logger = LoggerFactory.getLogger(GreyWolfOptimizer.class);
 
 	/**
 	 * Constructor
@@ -40,7 +43,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 		T delta = population.get(2);
 
 		for (int i = newGeneration.size(); i < population.size(); i++) {
-			T wolf = population.get(i);
+			T wolf = population.get(i).clone();
 
 			/*
 			 * A- exploration -> mutation || exploitation -> crossover 
@@ -67,7 +70,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
 			} finally {
-				newGeneration.add(wolf);
+				newGeneration.add(population.get(i));
 			}
 		}
 
@@ -98,8 +101,9 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
@@ -147,7 +151,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			this.notifyIteration();
 		}
 
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
 }
