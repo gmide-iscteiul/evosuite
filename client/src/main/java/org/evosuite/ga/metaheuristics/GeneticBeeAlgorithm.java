@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GeneticBeeAlgorithm implementation
@@ -19,8 +22,7 @@ import org.evosuite.utils.Randomness;
 public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 8549163302884771117L;
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
-	private boolean addNewBee = false;
+	private final Logger logger = LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
 
 	/**
 	 * Constructor
@@ -87,8 +89,8 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				newGeneration.add(discoverNewFood(employeeBee));
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
+			} finally {
 				newGeneration.add(employeeBee);
-				continue;
 			}
 		}
 
@@ -103,18 +105,19 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				}
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
+			} finally {
 				newGeneration.add(onlookerBee);
-				continue;
 			}
 		}
 
 		// scout bee phase
 		sortPopulation(newGeneration);
 
+		boolean addNewBee = false;
 		int currentScouts = 0;
 		for (int i = (population.size() - 1); i >= 0; i--) {
 			T scoutBee = newGeneration.get(i);
-			if (currentIteration - scoutBee.getAge() > Properties.LIMIT) { // replace scout bee with new individual
+			if (currentIteration - scoutBee.getAge() > Properties.MAX_NUM_ITERATIONS_WITHOUT_IMPROVEMENT) { // replace scout bee with new individual
 				newGeneration.remove(scoutBee);
 				T newFoodSource = chromosomeFactory.getChromosome();
 				fitnessFunctions.forEach(newFoodSource::addFitness);
@@ -134,6 +137,11 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		updateFitnessFunctionsAndValues();
 		//
 		currentIteration++;
+
+		if (addNewBee) {
+			sortPopulation();
+			addNewBee = false;
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -156,8 +164,9 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
@@ -172,10 +181,6 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 			evolve();
-			if (addNewBee) {
-				sortPopulation();
-				addNewBee = false;
-			}
 
 			// Local Search
 			// applyLocalSearch();
@@ -203,7 +208,7 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			this.notifyIteration();
 		}
 
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
 }

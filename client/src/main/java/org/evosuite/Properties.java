@@ -764,9 +764,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double ONLOOKER_BEE_RATE = 1.0;
 
-	@Parameter(key = "limit", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
+	@Parameter(key = "max_num_iterations_without_improvement", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
 	@IntValue(min = 1)
-	public static int LIMIT = 5;
+	public static int MAX_NUM_ITERATIONS_WITHOUT_IMPROVEMENT = 5;
 	
 	// ---------------------------------------------------------------	
 	// ---------------------------------------------------------------
