@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ElephantHerdingOptimization implementation
@@ -17,7 +20,7 @@ import org.evosuite.utils.LoggingUtils;
 public class ElephantHerdingOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8342568601726499012L;
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ElephantHerdingOptimization.class);
+	private final Logger logger = LoggerFactory.getLogger(ElephantHerdingOptimization.class);
 	private List<List<T>> clans = new ArrayList<>();
 
 	/**
@@ -66,16 +69,16 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 
 			for (int j = 1; j < clans.get(i).size(); j++) {
 				// eq for generic elephant
-				T elephant = clans.get(i).get(j);
+				T elephant = clans.get(i).get(j).clone();
 				try {
 					crossoverFunction.crossOver(elephant, elephant_matriarch.clone());
 					if (elephant.isChanged()) {
 						elephant.updateAge(currentIteration);
 					}
+					clan.add(elephant);
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover failed.");
-				} finally {
-					clan.add(elephant);
+					clan.add(clans.get(i).get(j));
 				}
 			}
 			notifyMutation(elephant_matriarch);
@@ -154,8 +157,9 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
@@ -199,7 +203,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 
 			this.notifyIteration();
 		}
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
 }
