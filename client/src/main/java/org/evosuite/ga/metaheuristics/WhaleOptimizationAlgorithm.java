@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * WhaleOptimizationAlgorithm implementation
@@ -17,7 +20,7 @@ import org.evosuite.utils.Randomness;
 public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 1178004502227853389L;
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WhaleOptimizationAlgorithm.class);
+	private final Logger logger = LoggerFactory.getLogger(WhaleOptimizationAlgorithm.class);
 
 	/**
 	 * Constructor
@@ -38,7 +41,7 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 		T bestWhale = population.get(0);
 		
 		for (int i = newGeneration.size(); i < population.size(); i++) {
-			T whale = population.get(i);
+			T whale = population.get(i).clone();
 
 			/*
 			 * A- exploration -> crossover with random whale || exploitation -> crossover
@@ -71,7 +74,7 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
 			} finally {
-				newGeneration.add(whale);
+				newGeneration.add(population.get(i));
 			}
 		}
 		population = newGeneration;
@@ -101,8 +104,9 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
@@ -150,7 +154,7 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 			this.notifyIteration();
 		}
 
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
 }
