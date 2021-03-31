@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TimeController;
 import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CatSwarmOptimization implementation
@@ -19,7 +22,7 @@ import org.evosuite.utils.Randomness;
 public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8855862003166456459L;
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CatSwarmOptimization.class);
+	private final Logger logger = LoggerFactory.getLogger(CatSwarmOptimization.class);
 
 	/**
 	 * Constructor
@@ -46,7 +49,7 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 
 		for (int i = newGeneration.size(); i < population.size(); i++) {
 			double ratio = Randomness.nextDouble();
-			T cat = population.get(i);
+			T cat = population.get(i).clone();
 			if (ratio < Properties.CROSSOVER_RATE) { // tracing mode
 				try {
 					crossoverFunction.crossOver(cat, bestCat.clone());
@@ -56,7 +59,7 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover/Mutation failed.");
 				} finally {
-					newGeneration.add(cat);
+					newGeneration.add(population.get(i));
 				}
 			} else { // seeking mode
 				int numberOfCopies;
@@ -109,8 +112,9 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 		if (Properties.ENABLE_SECONDARY_OBJECTIVE_AFTER > 0 || Properties.ENABLE_SECONDARY_OBJECTIVE_STARVATION) {
 			disableFirstSecondaryCriterion();
 		}
-		if (population.isEmpty())
+		if (population.isEmpty()) {
 			initializePopulation();
+		}
 
 		logger.debug("Starting evolution");
 		int starvationCounter = 0;
@@ -156,7 +160,7 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 
 			this.notifyIteration();
 		}
-		updateBestIndividualFromArchive();
+		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
 }
