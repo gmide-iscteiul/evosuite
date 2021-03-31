@@ -29,7 +29,7 @@ public class GeneticBeeAlgorithmSystemTest extends SystemTestBase {
 		Properties.SELECTION_FUNCTION = SelectionFunction.ROULETTEWHEEL;
 		Properties.ONLOOKER_BEE_RATE = 0.5;
 		Properties.NUMBER_OF_SCOUTS = 2;
-		Properties.LIMIT = 2;
+		Properties.MAX_NUM_ITERATIONS_WITHOUT_IMPROVEMENT = 2;
 
 		EvoSuite evosuite = new EvoSuite();
 
