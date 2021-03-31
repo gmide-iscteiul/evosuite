@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
@@ -17,10 +16,10 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class ElephantHerdingOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	
-	private static final long serialVersionUID = -6639358870017674241L;
+	private static final long serialVersionUID = -8342568601726499012L;
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ElephantHerdingOptimization.class);
 	private List<List<T>> clans = new ArrayList<>();
+
 	/**
 	 * Constructor
 	 *
@@ -28,22 +27,22 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 	 */
 	public ElephantHerdingOptimization(ChromosomeFactory<T> factory) {
 		super(factory);
-		
+
 		if (Properties.POPULATION < Properties.NUMBER_OF_ELEPHANT_CLANS) {
 			LoggingUtils.getEvoLogger().warn(
 					"Number of elephant clans cannot be bigger than population. Value adjusted to be equal to population");
 			Properties.NUMBER_OF_ELEPHANT_CLANS = Properties.POPULATION;
 		}
 	}
-	
-	private void sortClans() {
-		for (List<T> c : clans) {
+
+	private void sortClans(List<List<T>> list) {
+		for (List<T> c : list) {
 			sortPopulation(c);
 		}
 	}
-	
-	private void calculateFitnessAndSortClans() {
-		for (List<T> c : clans) {
+
+	private void calculateFitnessAndSortClans(List<List<T>> list) {
+		for (List<T> c : list) {
 			calculateFitnessAndSortPopulation(c);
 		}
 	}
@@ -54,55 +53,59 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		List<T> newGeneration = new ArrayList<>();
 		List<List<T>> newGenerationClans = new ArrayList<>();
 		/*
-		population -> group of clans -> group of elephants
-		population = nº clans * nº elephant per clan
-		male leave clan (worst solutions)
-		matriarch (best of each clan)	
-		*/
-		
-		
+		 * population -> group of clans -> group of elephants population = nº clans * nº
+		 * elephant per clan male leave clan (worst solutions) matriarch (best of each
+		 * clan)
+		 */
+
 		// update clan phase
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
 			// eq for matriarch of each clan
 			List<T> clan = new ArrayList<>();
-			T elephant_matriarch;
-			if(clans.get(i).get(0).equals(population.get(0))) {	//save best individual
-				elephant_matriarch = population.get(0).clone();
-				clan.add(elephant_matriarch);
-			} else {
-				elephant_matriarch = clans.get(i).get(0).clone();
-				notifyMutation(elephant_matriarch);
-				elephant_matriarch.mutate();
-				clan.add(elephant_matriarch);
-			}
+			T elephant_matriarch = clans.get(i).get(0);
+
 			for (int j = 1; j < clans.get(i).size(); j++) {
 				// eq for generic elephant
-				T elephant = clans.get(i).get(j).clone();
+				T elephant = clans.get(i).get(j);
 				try {
 					crossoverFunction.crossOver(elephant, elephant_matriarch.clone());
+					if (elephant.isChanged()) {
+						elephant.updateAge(currentIteration);
+					}
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover failed.");
 				} finally {
 					clan.add(elephant);
 				}
 			}
+			notifyMutation(elephant_matriarch);
+			elephant_matriarch.mutate();
+			if (elephant_matriarch.isChanged()) {
+				elephant_matriarch.updateAge(currentIteration);
+			}
+			clan.add(elephant_matriarch);
 			newGenerationClans.add(clan);
 		}
-		
-		//Determine Fitness
-		calculateFitnessAndSortClans();
-		
+
+		// Determine Fitness
+		calculateFitnessAndSortClans(newGenerationClans);
+
 		// male separation
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-			for (int k = (clans.get(i).size() - 1), j = 0; k > 0
-					&& j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; k--, j++) {
+			int numberOfMaleElephants = 0;
+			for (int j = (clans.get(i).size() - 1); j > 0; j--) {
 				// eq male elephant
-				T male_elephant = newGenerationClans.get(i).get(k);
+				T male_elephant = newGenerationClans.get(i).get(j);
 				newGenerationClans.get(i).remove(male_elephant);
 				T newElephant = chromosomeFactory.getChromosome();
 				fitnessFunctions.forEach(newElephant::addFitness);
+				newElephant.updateAge(currentIteration);
 				calculateFitness(newElephant);
 				newGenerationClans.get(i).add(newElephant);
+				numberOfMaleElephants++;
+				if (numberOfMaleElephants < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
+					break;
+				}
 			}
 		}
 
@@ -110,51 +113,6 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		for (List<T> c : newGenerationClans) {
 			newGeneration.addAll(c);
 		}
-		
-
-//		// update clan phase
-//		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-//			// eq 2 - for best of each clan = (mutation)
-//			T elephant_matriarch = population.get(i).clone();
-//			notifyMutation(elephant_matriarch);
-//			elephant_matriarch.mutate();
-//			newGeneration.add(elephant_matriarch);
-//			int index_start = i * (population.size() - Properties.NUMBER_OF_ELEPHANT_CLANS)
-//					/ Properties.NUMBER_OF_ELEPHANT_CLANS + Properties.NUMBER_OF_ELEPHANT_CLANS;
-//			int index_end = (i + 1) * (population.size() - Properties.NUMBER_OF_ELEPHANT_CLANS)
-//					/ Properties.NUMBER_OF_ELEPHANT_CLANS + Properties.NUMBER_OF_ELEPHANT_CLANS;
-//
-//			if (index_end > population.size()) {
-//				index_end = population.size();
-//			}
-//			for (int j = index_start; j < index_end; j++) {
-//				// eq 1 - for generic elephant = (crossover)
-//				T elephant = population.get(j).clone();
-//				try {
-//					crossoverFunction.crossOver(elephant, elephant_matriarch.clone());
-//				} catch (ConstructionFailedException e) {
-//					logger.info("Crossover failed.");
-//				} finally {
-//					newGeneration.add(elephant);
-//				}
-//			}
-//		}
-//
-//		// Determine fitness
-//		calculateFitnessAndSortPopulation();
-//		
-//		// male separation 
-//		ADD&REMOVE SAME ELEMENT!!!!!!!!!!!!!!!!!! -> added "i" to solve issue
-//		for (int j = 0, i=population.size()-1; i>0, j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN * Properties.NUMBER_OF_ELEPHANT_CLANS;i--, j++) {
-//			// eq 4 - male elephant = (replaced by a new individual)
-//			newGeneration.remove(i);
-//			T newElephant = chromosomeFactory.getChromosome();
-//			fitnessFunctions.forEach(newElephant::addFitness);
-//			calculateFitness(newElephant);
-//			newGeneration.add(newElephant);
-//		}
-		
-		
 
 		population = newGeneration;
 		clans = newGenerationClans;
@@ -172,8 +130,8 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 
 		// Set up initial population
 		generateInitialPopulation(Properties.POPULATION);
-		
-		//Set up elephant clans
+
+		// Set up elephant clans
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
 			int index_start = i * population.size() / Properties.NUMBER_OF_ELEPHANT_CLANS;
 			int index_end = (i + 1) * (population.size()) / Properties.NUMBER_OF_ELEPHANT_CLANS;
@@ -186,7 +144,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		}
 		// Determine fitness
 		calculateFitnessAndSortPopulation();
-		sortClans();
+		sortClans(clans);
 		this.notifyIteration();
 	}
 
@@ -206,26 +164,27 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		if (getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
-		}		
+		}
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 			evolve();
 
 			sortPopulation();
-			sortClans();
-			////// remove Local Search?
+			sortClans(clans);
+			
+			// Local Search
 			// applyLocalSearch();
 
-			double newFitness = getBestIndividual().getFitness();
-
-			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			else
-				assert (newFitness <= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			bestFitness = newFitness;
+//			double newFitness = getBestIndividual().getFitness();
+//
+//			if (getFitnessFunction().isMaximizationFunction())
+//				assert (newFitness >= bestFitness)
+//						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+//			else
+//				assert (newFitness <= bestFitness)
+//						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+//			bestFitness = newFitness;
 
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;

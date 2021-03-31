@@ -17,51 +17,55 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
 import com.examples.with.different.packagename.XMLElement2;
 
-public class GeneticBeeAlgorithmSystemTest extends SystemTestBase{
-	
-	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
+public class GeneticBeeAlgorithmSystemTest extends SystemTestBase {
+
+	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut) {
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
 		Properties.ALGORITHM = Algorithm.GENETIC_BEE_ALGORITHM;
-	    Properties.POPULATION = 25;
-	    Properties.STOPPING_CONDITION = sc;
-	    Properties.SEARCH_BUDGET = budget;
-	    Properties.SELECTION_FUNCTION=SelectionFunction.ROULETTEWHEEL;
+		Properties.POPULATION = 25;
+		Properties.STOPPING_CONDITION = sc;
+		Properties.SEARCH_BUDGET = budget;
+		Properties.SELECTION_FUNCTION = SelectionFunction.ROULETTEWHEEL;
+		Properties.ONLOOKER_BEE_RATE = 0.5;
+		Properties.NUMBER_OF_SCOUTS = 2;
+		Properties.LIMIT = 2;
 
-	    EvoSuite evosuite = new EvoSuite();
+		EvoSuite evosuite = new EvoSuite();
 
-	    String targetClass = cut;
-	    Properties.TARGET_CLASS = targetClass;
+		String targetClass = cut;
+		Properties.TARGET_CLASS = targetClass;
 
-	    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-	    Object result = evosuite.parseCommandLine(command);
-	    Assert.assertNotNull(result);
+		Object result = evosuite.parseCommandLine(command);
+		Assert.assertNotNull(result);
 
-	    GeneticAlgorithm<?> ga = getGAFromResult(result);
-	    
-	    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
-	    
-	    return population;
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
+
+		return population;
 	}
 
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedTime(){
-		
+	public void testGeneticBeeAlgorithmWithLimitedTime() {
+
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
-		
-	    for (Chromosome p : population) {
-            Assert.assertNotEquals(p.getCoverage(), 1.0);
-        }
+
+		for (Chromosome p : population) {
+			Assert.assertNotEquals(p.getCoverage(), 1.0);
+		}
 	}
-	
+
 	@Test
-	public void testGeneticBeeAlgorithmWithLimitedGenerations(){
-		
-	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
-	    
-	    for (Chromosome p : population) {
-            Assert.assertNotEquals(p.getCoverage(), 1.0);
-        }
+	public void testGeneticBeeAlgorithmWithLimitedGenerations() {
+
+		List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10,
+				ClassHierarchyIncludingInterfaces.class.getCanonicalName());
+
+		for (Chromosome p : population) {
+			Assert.assertNotEquals(p.getCoverage(), 1.0);
+		}
 	}
 }

@@ -18,49 +18,53 @@ import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces
 import com.examples.with.different.packagename.XMLElement2;
 
 public class CatSwarmOptimizationSystemTest extends SystemTestBase {
-	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut){
+	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut) {
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
 		Properties.ALGORITHM = Algorithm.CAT_SWARM_OPTIMIZATION;
-	    Properties.POPULATION = 25;
-	    Properties.STOPPING_CONDITION = sc;
-	    Properties.SEARCH_BUDGET = budget;
-	    Properties.SELECTION_FUNCTION=SelectionFunction.ROULETTEWHEEL;
-	    	   
-	    EvoSuite evosuite = new EvoSuite();
+		Properties.POPULATION = 25;
+		Properties.STOPPING_CONDITION = sc;
+		Properties.SEARCH_BUDGET = budget;
+		Properties.SELECTION_FUNCTION = SelectionFunction.ROULETTEWHEEL;
+		Properties.SELF_POSITION_CONSIDERATION = false;
+		Properties.SEEKING_MEMORY_POOL = 5;
+		Properties.CROSSOVER_RATE = 0.5;
 
-	    String targetClass = cut;
-	    Properties.TARGET_CLASS = targetClass;
+		EvoSuite evosuite = new EvoSuite();
 
-	    String[] command = new String[] {"-generateSuite", "-class", targetClass};
+		String targetClass = cut;
+		Properties.TARGET_CLASS = targetClass;
 
-	    Object result = evosuite.parseCommandLine(command);
-	    Assert.assertNotNull(result);
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-	    GeneticAlgorithm<?> ga = getGAFromResult(result);
-	    
-	    List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
-	    
-	    return population;
+		Object result = evosuite.parseCommandLine(command);
+		Assert.assertNotNull(result);
+
+		GeneticAlgorithm<?> ga = getGAFromResult(result);
+
+		List<Chromosome> population = new ArrayList<>(ga.getBestIndividuals());
+
+		return population;
 	}
 
 	@Test
-	public void testCatSwarmOptimizationWithLimitedTime(){
-		
+	public void testCatSwarmOptimizationWithLimitedTime() {
+
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
-		
-	    for (Chromosome p : population) {
-            Assert.assertNotEquals(p.getCoverage(), 1.0);
-        }
+
+		for (Chromosome p : population) {
+			Assert.assertNotEquals(p.getCoverage(), 1.0);
+		}
 	}
-	
+
 	@Test
-	public void testCatSwarmOptimizationWithLimitedGenerations(){
-		
-	    List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10, ClassHierarchyIncludingInterfaces.class.getCanonicalName());
-	    
-	    for (Chromosome p : population) {
-            Assert.assertNotEquals(p.getCoverage(), 1.0);
-        }
+	public void testCatSwarmOptimizationWithLimitedGenerations() {
+
+		List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10,
+				ClassHierarchyIncludingInterfaces.class.getCanonicalName());
+
+		for (Chromosome p : population) {
+			Assert.assertNotEquals(p.getCoverage(), 1.0);
+		}
 	}
 }

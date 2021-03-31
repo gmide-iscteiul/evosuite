@@ -18,11 +18,9 @@ import org.evosuite.utils.Randomness;
  */
 public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	private static final long serialVersionUID = -8557609199714500045L;
-
+	private static final long serialVersionUID = 8549163302884771117L;
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneticBeeAlgorithm.class);
-
-	private boolean addNewBee=false;
+	private boolean addNewBee = false;
 
 	/**
 	 * Constructor
@@ -42,40 +40,37 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 
 	private T discoverNewFood(T bee) throws ConstructionFailedException {
 		// selection of 2 random neighbors
-		T neighbor_1 = population.get(Randomness.nextInt(getPopulationSize())).clone();
-		T neighbor_2 = population.get(Randomness.nextInt(getPopulationSize())).clone();
+		T neighbor1 = population.get(Randomness.nextInt(getPopulationSize())).clone();
+		T neighbor2 = population.get(Randomness.nextInt(getPopulationSize())).clone();
 
 		// Generation of children
-		T child_1 = bee.clone();
-		T child_2 = bee.clone();
-		crossoverFunction.crossOver(child_1, neighbor_1);
-		crossoverFunction.crossOver(child_2, neighbor_2);
+		T child1 = bee.clone();
+		T child2 = bee.clone();
+		crossoverFunction.crossOver(child1, neighbor1);
+		crossoverFunction.crossOver(child2, neighbor2);
 
 		// Generation of grandchildren
-		T grandchild_1 = child_1.clone();
-		notifyMutation(grandchild_1);
-		grandchild_1.mutate();
+		T grandchild1 = child1.clone();
+		notifyMutation(grandchild1);
+		grandchild1.mutate();
 
-		T grandchild_2 = child_2.clone();
-		notifyMutation(grandchild_2);
-		grandchild_2.mutate();
+		T grandchild2 = child2.clone();
+		notifyMutation(grandchild2);
+		grandchild2.mutate();
 
 		// Find best food source in the neighborhood
 		List<T> foodSources = new ArrayList<>();
 		foodSources.add(bee);
-		foodSources.add(child_1);
-		foodSources.add(child_2);
-		foodSources.add(grandchild_1);
-		foodSources.add(grandchild_2);
+		foodSources.add(child1);
+		foodSources.add(child2);
+		foodSources.add(grandchild1);
+		foodSources.add(grandchild2);
 		calculateFitnessAndSortPopulation(foodSources); // added method to GA class
 
 		T currentFood = foodSources.get(0);
 
-		if (!currentFood.equals(bee)) { // if a better food source was found
+		if (currentFood != bee) { // if a better food source was found
 			currentFood.updateAge(currentIteration);
-			currentFood.setDistance(0);
-		} else {
-			currentFood.setDistance(currentFood.getDistance() + 1);
 		}
 		return currentFood;
 	}
@@ -87,25 +82,28 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 
 		// employee bee phase
 		for (int i = 0; i < population.size(); i++) {
-			T employee_bee = population.get(i);
+			T employeeBee = population.get(i);
 			try {
-				newGeneration.add(discoverNewFood(employee_bee));
+				newGeneration.add(discoverNewFood(employeeBee));
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-				newGeneration.add(employee_bee);
+				newGeneration.add(employeeBee);
 				continue;
 			}
 		}
 
 		// onlooker bee phase
-		for (double i = 0; i < population.size() * Properties.ONLOOKER_BEE_RATE; i++) {
-			T onlooker_bee = selectionFunction.select(newGeneration);
+		for (int i = 0; i < (int) (population.size() * Properties.ONLOOKER_BEE_RATE); i++) {
+			T onlookerBee = selectionFunction.select(newGeneration);
 			try {
-				newGeneration.remove(onlooker_bee);
-				newGeneration.add(discoverNewFood(onlooker_bee));
+				T newBee = discoverNewFood(onlookerBee);
+				if (newBee != onlookerBee) {
+					newGeneration.remove(onlookerBee);
+					newGeneration.add(newBee);
+				}
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-				newGeneration.add(onlooker_bee);
+				newGeneration.add(onlookerBee);
 				continue;
 			}
 		}
@@ -113,16 +111,21 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 		// scout bee phase
 		sortPopulation(newGeneration);
 
-		for (int i = (population.size() - 1), j = 0; i > 0 && j < Properties.NUMBER_OF_SCOUTS; i--) {
-			T scout_bee = newGeneration.get(i);
-			if (scout_bee.getDistance() > Properties.LIMIT) {
-				newGeneration.remove(scout_bee);
+		int currentScouts = 0;
+		for (int i = (population.size() - 1); i >= 0; i--) {
+			T scoutBee = newGeneration.get(i);
+			if (currentIteration - scoutBee.getAge() > Properties.LIMIT) { // replace scout bee with new individual
+				newGeneration.remove(scoutBee);
 				T newFoodSource = chromosomeFactory.getChromosome();
 				fitnessFunctions.forEach(newFoodSource::addFitness);
+				newFoodSource.updateAge(currentIteration);
 				calculateFitness(newFoodSource);
-				newGeneration.add(newFoodSource);				
-				j++;
-				addNewBee=true;
+				newGeneration.add(newFoodSource);
+				currentScouts++;
+				addNewBee = true;
+				if (currentScouts >= Properties.NUMBER_OF_SCOUTS) {
+					break;
+				}
 			}
 		}
 
@@ -164,39 +167,35 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 			bestFitness = 0.0;
 			lastBestFitness = 0.0;
 		}
-		// setSelectionFunction(new FitnessProportionateSelection<>()); //roullete wheel
-		// selection
 
 		while (!isFinished()) {
 			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 			evolve();
-			if(addNewBee) {
+			if (addNewBee) {
 				sortPopulation();
-				addNewBee=false;
+				addNewBee = false;
 			}
-			
 
-			////// remove Local Search?
+			// Local Search
 			// applyLocalSearch();
 
-			double newFitness = getBestIndividual().getFitness();
-
-			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			else
-				assert (newFitness <= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			bestFitness = newFitness;
-
+//			double newFitness = getBestIndividual().getFitness();
+//
+//			if (getFitnessFunction().isMaximizationFunction())
+//				assert (newFitness >= bestFitness)
+//						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+//			else
+//				assert (newFitness <= bestFitness)
+//						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+//			bestFitness = newFitness;
+//
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;
 			} else {
 				logger.info("reset starvationCounter after " + starvationCounter + " iterations");
 				starvationCounter = 0;
 				lastBestFitness = bestFitness;
-
 			}
 
 			updateSecondaryCriterion(starvationCounter);

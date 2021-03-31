@@ -17,8 +17,6 @@ import org.evosuite.utils.Randomness;
 public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = -8811115659916973474L;
-	// private static final long serialVersionUID = 5043503777821916152L;
-
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GreyWolfOptimizer.class);
 
 	/**
@@ -33,20 +31,16 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<>();
+		List<T> newGeneration = new ArrayList<>(elitism());
 
 		double a = 2 * (1.0 - this.progress()); // [2,0] adapted to all stopping conditions
 
-		T alpha = population.get(0).clone();
-		T beta = population.get(1).clone();
-		T delta = population.get(2).clone();
+		T alpha = population.get(0);
+		T beta = population.get(1);
+		T delta = population.get(2);
 
-		newGeneration.add(alpha);
-		newGeneration.add(beta);
-		newGeneration.add(delta);
-
-		for (int i = 3; i < population.size(); i++) {
-			T wolf = population.get(i).clone();
+		for (int i = newGeneration.size(); i < population.size(); i++) {
+			T wolf = population.get(i);
 
 			/*
 			 * A- exploration -> mutation || exploitation -> crossover 
@@ -76,6 +70,7 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 				newGeneration.add(wolf);
 			}
 		}
+
 		population = newGeneration;
 		// archive
 		updateFitnessFunctionsAndValues();
@@ -123,18 +118,20 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
 
-			////// remove Local Search?
+			// Local Search
 			// applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();
 
-			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			else
-				assert (newFitness <= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			bestFitness = newFitness;
+			if (Properties.ELITE > 0) {
+				if (getFitnessFunction().isMaximizationFunction())
+					assert (newFitness >= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				else
+					assert (newFitness <= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				bestFitness = newFitness;
+			}
 
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;

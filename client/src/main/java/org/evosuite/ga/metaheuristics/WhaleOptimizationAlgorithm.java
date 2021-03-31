@@ -17,8 +17,6 @@ import org.evosuite.utils.Randomness;
 public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 1178004502227853389L;
-	// private static final long serialVersionUID = 5043503777821916152L;
-
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WhaleOptimizationAlgorithm.class);
 
 	/**
@@ -33,16 +31,14 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<>();
+		List<T> newGeneration = new ArrayList<>(elitism());
 
 		double a = 2 * (1.0 - this.progress()); // [2,0] adapted to all stopping conditions
 
-		T bestWhale = population.get(0).clone();
-
-		newGeneration.add(bestWhale);
-
-		for (int i = 1; i < population.size(); i++) {
-			T whale = population.get(i).clone();
+		T bestWhale = population.get(0);
+		
+		for (int i = newGeneration.size(); i < population.size(); i++) {
+			T whale = population.get(i);
 
 			/*
 			 * A- exploration -> crossover with random whale || exploitation -> crossover
@@ -125,18 +121,20 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
 
-			////// remove Local Search?
+			// remove Local Search
 			// applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();
 
-			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			else
-				assert (newFitness <= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			bestFitness = newFitness;
+			if (Properties.ELITE > 0) {
+				if (getFitnessFunction().isMaximizationFunction())
+					assert (newFitness >= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				else
+					assert (newFitness <= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				bestFitness = newFitness;
+			}
 
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;

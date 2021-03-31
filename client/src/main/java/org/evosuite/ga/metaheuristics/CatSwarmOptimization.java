@@ -18,7 +18,6 @@ import org.evosuite.utils.Randomness;
  */
 public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	// private static final long serialVersionUID = 5043503777821916152L;
 	private static final long serialVersionUID = -8855862003166456459L;
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CatSwarmOptimization.class);
 
@@ -41,14 +40,12 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
-		List<T> newGeneration = new ArrayList<>();
+		List<T> newGeneration = new ArrayList<>(elitism());
 
 		T bestCat = population.get(0);
-		newGeneration.add(bestCat);
 
-		double ratio;
-		for (int i = 1; i < population.size(); i++) {
-			ratio = Randomness.nextDouble();
+		for (int i = newGeneration.size(); i < population.size(); i++) {
+			double ratio = Randomness.nextDouble();
 			T cat = population.get(i);
 			if (ratio < Properties.CROSSOVER_RATE) { // tracing mode
 				try {
@@ -62,24 +59,24 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 					newGeneration.add(cat);
 				}
 			} else { // seeking mode
-				int number_of_copies;
-				List<T> list_of_copies = new ArrayList<>();
+				int numberOfCopies;
+				List<T> listOfCopies = new ArrayList<>();
 				if (Properties.SELF_POSITION_CONSIDERATION) { // current possition counts
-					number_of_copies = Properties.SEEKING_MEMORY_POOL - 1;
-					list_of_copies.add(cat);
+					numberOfCopies = Properties.SEEKING_MEMORY_POOL - 1;
+					listOfCopies.add(cat);
 				} else {
-					number_of_copies = Properties.SEEKING_MEMORY_POOL;
+					numberOfCopies = Properties.SEEKING_MEMORY_POOL;
 				}
-				for (int j = 0; j < number_of_copies; j++) {
+				for (int j = 0; j < numberOfCopies; j++) {
 					T copy = cat.clone();
 					notifyMutation(copy);
 					copy.mutate();
-					list_of_copies.add(copy);
+					listOfCopies.add(copy);
 				}
-				calculateFitnessAndSortPopulation(list_of_copies);
-				T newGenCat = selectionFunction.select(list_of_copies);
+				calculateFitnessAndSortPopulation(listOfCopies);
+				T newGenCat = selectionFunction.select(listOfCopies);
 				newGeneration.add(newGenCat);
-				if (!newGenCat.equals(cat)) {
+				if (newGenCat != cat) {
 					newGenCat.updateAge(currentIteration);
 				}
 			}
@@ -131,18 +128,20 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 			// Determine fitness
 			calculateFitnessAndSortPopulation();
 
-			////// remove Local Search?
+			// Local Search
 			// applyLocalSearch();
 
 			double newFitness = getBestIndividual().getFitness();
 
-			if (getFitnessFunction().isMaximizationFunction())
-				assert (newFitness >= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			else
-				assert (newFitness <= bestFitness)
-						: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
-			bestFitness = newFitness;
+			if (Properties.ELITE > 0) {
+				if (getFitnessFunction().isMaximizationFunction())
+					assert (newFitness >= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				else
+					assert (newFitness <= bestFitness)
+							: "best fitness was: " + bestFitness + ", now best fitness is " + newFitness;
+				bestFitness = newFitness;
+			}
 
 			if (Double.compare(bestFitness, lastBestFitness) == 0) {
 				starvationCounter++;
@@ -157,7 +156,6 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 
 			this.notifyIteration();
 		}
-
 		updateBestIndividualFromArchive();
 		notifySearchFinished();
 	}
