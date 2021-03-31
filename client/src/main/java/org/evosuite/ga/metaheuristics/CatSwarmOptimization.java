@@ -56,9 +56,9 @@ public class CatSwarmOptimization<T extends Chromosome<T>> extends GeneticAlgori
 					if (cat.isChanged()) {
 						cat.updateAge(currentIteration);
 					}
+					newGeneration.add(cat);
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover/Mutation failed.");
-				} finally {
 					newGeneration.add(population.get(i));
 				}
 			} else { // seeking mode

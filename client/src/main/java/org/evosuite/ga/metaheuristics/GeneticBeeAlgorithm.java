@@ -89,7 +89,6 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				newGeneration.add(discoverNewFood(employeeBee));
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-			} finally {
 				newGeneration.add(employeeBee);
 			}
 		}
@@ -105,7 +104,6 @@ public class GeneticBeeAlgorithm<T extends Chromosome<T>> extends GeneticAlgorit
 				}
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-			} finally {
 				newGeneration.add(onlookerBee);
 			}
 		}

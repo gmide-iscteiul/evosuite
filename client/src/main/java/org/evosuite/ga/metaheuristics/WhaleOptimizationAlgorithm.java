@@ -71,9 +71,9 @@ public class WhaleOptimizationAlgorithm<T extends Chromosome<T>> extends Genetic
 				if (whale.isChanged()) {
 					whale.updateAge(currentIteration);
 				}
+				newGeneration.add(whale);
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-			} finally {
 				newGeneration.add(population.get(i));
 			}
 		}

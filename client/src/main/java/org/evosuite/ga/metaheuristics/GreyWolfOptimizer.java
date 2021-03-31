@@ -67,9 +67,9 @@ public class GreyWolfOptimizer<T extends Chromosome<T>> extends GeneticAlgorithm
 				if (wolf.isChanged()) {
 					wolf.updateAge(currentIteration);
 				}
+				newGeneration.add(wolf);
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover/Mutation failed.");
-			} finally {
 				newGeneration.add(population.get(i));
 			}
 		}
