@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * GreyWolfOptimizer implementation
+ * MothFlameOptimization implementation
  *
  * @author
  */
 public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgorithm<T> {
 
-	private static final long serialVersionUID = -8811115659916973474L;
+	private static final long serialVersionUID = 1918123998957131536L;
 	private final Logger logger = LoggerFactory.getLogger(MothFlameOptimization.class);
 	private List <T> bestSolutions = new ArrayList<>();
 

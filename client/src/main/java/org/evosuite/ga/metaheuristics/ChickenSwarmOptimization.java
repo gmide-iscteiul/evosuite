@@ -77,19 +77,7 @@ public class ChickenSwarmOptimization<T extends Chromosome<T>> extends GeneticAl
 			} else {
 				i--;
 			}
-		}
-			
-
-//		// decide mother-child pairs
-//		for (int i = 0; i < Properties.NUMBER_OF_MOTHER_HENS; i++) {
-//			int r = Randomness.nextInt(Properties.NUMBER_OF_ROOSTERS, population.size() - Properties.NUMBER_OF_CHICKS);
-//			T mother = population.get(r);
-//			henChickPairs.add(mother);
-//		}
-//		for (int i = population.size() - Properties.NUMBER_OF_CHICKS; i < population.size(); i++) {
-//			T chick = population.get(i);
-//			henChickPairs.add(chick);
-//		}		
+		}		
 	}
 
 
@@ -162,24 +150,13 @@ public class ChickenSwarmOptimization<T extends Chromosome<T>> extends GeneticAl
 				newGenerationChicks.add(chicks.get(i));
 			}
 		}
-				
-//		// chick phase
-//		for (int i = 0; i < Properties.NUMBER_OF_CHICKS; i++) { 
-//			T chick = henChickPairs.get(i + Properties.NUMBER_OF_MOTHER_HENS);
-//			T mother = henChickPairs.get(i % Properties.NUMBER_OF_MOTHER_HENS).clone();
-//			try {
-//				crossoverFunction.crossOver(chick, mother.clone());
-//			} catch (ConstructionFailedException e) {
-//				logger.info("Crossover/Mutation failed.");
-//			} finally {
-//				newGeneration.add(chick);
-//			}		
-//		}
 		
 		// join groups to form population
 		for (List<T> group : newGenerationGroups) {
 			newGeneration.addAll(group);
 		}
+		newGeneration.addAll(newGenerationChicks);
+	
 		
 		chicks = newGenerationChicks;
 		groups = newGenerationGroups;

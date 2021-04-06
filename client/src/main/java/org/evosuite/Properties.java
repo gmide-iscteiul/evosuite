@@ -767,8 +767,7 @@ public class Properties {
 	@Parameter(key = "max_num_iterations_without_improvement", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
 	@IntValue(min = 1)
 	public static int MAX_NUM_ITERATIONS_WITHOUT_IMPROVEMENT = 5;
-	
-	// ---------------------------------------------------------------	
+		
 	// ---------------------------------------------------------------
 	// Cat Swarm Optimizer Parameters
 
