@@ -130,6 +130,12 @@ public class PropertiesSuiteGAFactory
 			case ELEPHANT_HERDING_OPTIMIZATION:
 				logger.info("Chosen search algorithm: ElephantHerdingOptimization");
 				return new ElephantHerdingOptimization<>(factory);
+			case CHICKEN_SWARM_OPTIMIZATION:
+				logger.info("Chosen search algorithm: ChickenSwarmOptimization");
+				return new ChickenSwarmOptimization<>(factory);
+			case MOTH_FLAME_OPTIMIZATION:
+				logger.info("Chosen search algorithm: MothFlameOptimization");
+				return new MothFlameOptimization<>(factory);
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
 				return new OnePlusOneEA<>(factory);

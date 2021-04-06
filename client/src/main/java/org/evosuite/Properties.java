@@ -319,7 +319,7 @@ public class Properties {
 		NSGAII, SPEA2,
 		//SIAs
 		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM, CAT_SWARM_OPTIMIZATION,
-		ELEPHANT_HERDING_OPTIMIZATION
+		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION
 	}
 
 	// MOSA PROPERTIES
@@ -796,7 +796,26 @@ public class Properties {
 	@Parameter(key = "number_of_male_elephants_per_clan", group = "Elephant Herding Optimization", description = "The number of male elephants in each clan")
 	@IntValue(min = 1)
 	public static int NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = 1;
-					
+
+	// ---------------------------------------------------------------
+	// Chicken Swarm Optimization Parameters
+
+	@Parameter(key = "number_of_roosters", group = "Chicken Swarm Optimization", description = "The number of roosters in the swarm")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_ROOSTERS = 1;
+
+	@Parameter(key = "number_of_chicks", group = "Chicken Swarm Optimization", description = "The number of chicks in the swarm")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_CHICKS = 1;
+	
+	@Parameter(key = "number_of_mother_hens", group = "Chicken Swarm Optimization", description = "The number of mother hens in the swarm")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_MOTHER_HENS = 1;
+	
+	@Parameter(key = "chicken_swarm_update_interval", group = "Chicken Swarm Optimization", description = "Update the swarm's groups at X generations")
+	@IntValue(min = 1)
+	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 1;
+	
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
 
