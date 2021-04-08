@@ -37,7 +37,7 @@ public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgor
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>();
 		// [Population Nº,1] adapted to all stopping conditions
-		int numberOfFlames = (int)(Properties.POPULATION / (1.0 - this.progress())); //div per 0 error possible???
+		int numberOfFlames = (int) (-Properties.POPULATION * this.progress()) + Properties.POPULATION;
 		if(numberOfFlames < 1) {
 			numberOfFlames = 1;
 		}
@@ -54,7 +54,7 @@ public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgor
 			 */
 			try {
 				if (t < 0) {
-					// crossover
+					// crossover		
 					T flame = bestSolutions.get((i * numberOfFlames) / population.size());
 					crossoverFunction.crossOver(moth, flame.clone());
 				} else {
@@ -85,7 +85,8 @@ public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgor
 			bestSolutions = population;
 		} else {
 			// add better solutions if found
-			for (int i = 0; i < numberOfFlames; i++) {
+			int size = bestSolutions.size();
+			for (int i = 0; i < size; i++) {
 				for (int j = 0; j < population.size(); j++) {
 					if (getFitnessFunction().isMaximizationFunction()) { // maximize ff
 						if (bestSolutions.get(i).getFitness() < population.get(j).getFitness()) { 
@@ -106,8 +107,9 @@ public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgor
 				}
 			}
 			// remove excess solutions
-			for (int i = numberOfFlames; i < bestSolutions.size(); i++) {
-				bestSolutions.remove(i);
+			size = bestSolutions.size();
+			for (int i = numberOfFlames; i < size; i++) {
+				bestSolutions.remove(numberOfFlames);
 			}
 		}
 	}

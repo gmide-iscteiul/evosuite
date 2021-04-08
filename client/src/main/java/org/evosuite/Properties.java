@@ -811,9 +811,9 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int NUMBER_OF_MOTHER_HENS = 1;
 	
-	@Parameter(key = "chicken_swarm_update_interval", group = "Chicken Swarm Optimization", description = "Update the swarm's groups at X generations")
+	@Parameter(key = "chicken_swarm_update_interval", group = "Chicken Swarm Optimization", description = "Update the swarm's groups in intervals of X iterations")
 	@IntValue(min = 1)
-	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 1;
+	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 5;
 	
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
