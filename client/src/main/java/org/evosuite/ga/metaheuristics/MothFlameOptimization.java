@@ -37,13 +37,10 @@ public class MothFlameOptimization<T extends Chromosome<T>> extends GeneticAlgor
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>();
 		// [Population Nº,1] adapted to all stopping conditions
-		int numberOfFlames = (int) (-Properties.POPULATION * this.progress()) + Properties.POPULATION;
-		if(numberOfFlames < 1) {
-			numberOfFlames = 1;
-		}
-
-		updateFlames(numberOfFlames);
+		int numberOfFlames = (int) (-Properties.POPULATION * this.progress()) + Properties.POPULATION + 1;
 		
+		updateFlames(numberOfFlames);
+
 		for (int i = 0; i < population.size(); i++) {
 			T moth = population.get(i).clone();
 			double r = -1 - this.progress();	// [-2,-1] adapted to all stopping conditions
