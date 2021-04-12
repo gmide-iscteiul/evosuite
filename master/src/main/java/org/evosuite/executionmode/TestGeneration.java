@@ -332,24 +332,21 @@ public class TestGeneration {
 			cmdLine.add("-Dstrategy=MOSuite");
 
 			// Set up defaults for MOSA if not specified by user
-			boolean algorithmSet = false;
-			boolean selectionSet = false;
+			Properties.ALGORITHM = Properties.Algorithm.DYNAMOSA;
+			Properties.SELECTION_FUNCTION = Properties.SelectionFunction.RANK_CROWD_DISTANCE_TOURNAMENT;
+
 			for (String arg : args) {
 				if (arg.startsWith("-Dalgorithm")) {
-					algorithmSet = true;
+					Properties.ALGORITHM = Properties.Algorithm.valueOf(arg.replace("-Dalgorithm=",""));
 				}
 				if (arg.startsWith("-Dselection_function")) {
-					selectionSet = true;
+					Properties.SELECTION_FUNCTION = Properties.SelectionFunction.valueOf(arg.replace("-Dselection_function=",""));
 				}
 			}
 
-			if(!selectionSet) {
-				cmdLine.add("-Dselection_function=RANK_CROWD_DISTANCE_TOURNAMENT");
-			}
+			cmdLine.add("-Dselection_function=" + Properties.SELECTION_FUNCTION.name());
+			cmdLine.add("-Dalgorithm=" + Properties.ALGORITHM.name());
 
-			if(!algorithmSet) {
-				cmdLine.add("-Dalgorithm=DYNAMOSA");
-			}
 			break;
 		case DSE:
 			cmdLine.add("-Dstrategy=DSE");
