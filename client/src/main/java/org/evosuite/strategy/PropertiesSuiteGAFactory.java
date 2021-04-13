@@ -32,6 +32,7 @@ import org.evosuite.ga.FitnessReplacementFunction;
 import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.ga.metaheuristics.*;
 import org.evosuite.ga.metaheuristics.mosa.DynaMOSA;
+import org.evosuite.ga.metaheuristics.mosa.ElephantMOSA;
 import org.evosuite.ga.metaheuristics.mosa.MOSA;
 import org.evosuite.ga.metaheuristics.mosa.MOSATestSuiteAdapter;
 import org.evosuite.ga.metaheuristics.mulambda.MuLambdaEA;
@@ -136,6 +137,9 @@ public class PropertiesSuiteGAFactory
 			case MOTH_FLAME_OPTIMIZATION:
 				logger.info("Chosen search algorithm: MothFlameOptimization");
 				return new MothFlameOptimization<>(factory);
+			case FISH_SWARM_ALGORITHM:
+				logger.info("Chosen search algorithm: FishSwarmAlgorithm");
+				return new FishSwarmAlgorithm<>(factory);
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
 				return new OnePlusOneEA<>(factory);
@@ -215,6 +219,16 @@ public class PropertiesSuiteGAFactory
 					logger.info("No specific factory for test cases given...");
 					logger.info("Using a default factory that creates tests with variable length");
 					return new MOSATestSuiteAdapter(new DynaMOSA(new RandomLengthTestFactory()));
+				}
+			case ELEPHANTMOSA:
+				logger.info("Chosen search algorithm: ElephantMOSA");
+				if (factory instanceof TestSuiteChromosomeFactory) {
+					final TestSuiteChromosomeFactory tscf = (TestSuiteChromosomeFactory) factory;
+					return new MOSATestSuiteAdapter(new ElephantMOSA(tscf.getTestChromosomeFactory()));
+				} else {
+					logger.info("No specific factory for test cases given...");
+					logger.info("Using a default factory that creates tests with variable length");
+					return new MOSATestSuiteAdapter(new ElephantMOSA(new RandomLengthTestFactory()));
 				}
 			case ONE_PLUS_LAMBDA_LAMBDA_GA:
 				logger.info("Chosen search algorithm: 1 + (lambda, lambda)GA");

@@ -314,12 +314,12 @@ public class Properties {
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, DYNAMOSA, LIPS, MIO,
+		MOSA, DYNAMOSA, LIPS, MIO, ELEPHANTMOSA,
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2,
 		//SIAs
 		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM, CAT_SWARM_OPTIMIZATION,
-		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION
+		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION, FISH_SWARM_ALGORITHM
 	}
 
 	// MOSA PROPERTIES
@@ -814,6 +814,13 @@ public class Properties {
 	@Parameter(key = "chicken_swarm_update_interval", group = "Chicken Swarm Optimization", description = "Update the swarm's groups in intervals of X iterations")
 	@IntValue(min = 1)
 	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 5;
+	
+	// ---------------------------------------------------------------
+	// Fish Swarm Algorithm Parameters
+
+	@Parameter(key = "number_of_attempts", group = "Fish Swarm Algorithm", description = "The number of attempts for finding better prey")
+	@IntValue(min = 1)
+	public static int NUMBER_OF_ATTEMPTS = 1;
 	
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
