@@ -199,7 +199,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				} else {
 					newElephant = chromosomeFactory.getChromosome();
 				}
-				//assert newElephant != null; necessary?
 
 				// In case new male has changed since last evaluation, re-evaluate it
 				if (newElephant.isChanged()) {
