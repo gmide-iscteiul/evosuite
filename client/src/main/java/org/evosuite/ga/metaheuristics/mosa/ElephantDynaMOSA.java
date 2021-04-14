@@ -195,7 +195,7 @@ public class ElephantDynaMOSA extends AbstractMOSA {
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// eq male elephant
 				TestChromosome newElephant;
-				if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.ARCHIVE_ELEPHANTS) {
+				if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
 					newElephant = chromosomeFactory.getChromosome();
 				} else {
 					newElephant = Randomness.choice(this.getSolutions()).clone();

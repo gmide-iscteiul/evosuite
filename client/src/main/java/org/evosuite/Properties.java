@@ -796,8 +796,8 @@ public class Properties {
 	@IntValue(min = 1)
 	public static int NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = 1;
 	
-	@Parameter(key = "archive_elephants", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "If true, the algorithm can access the archive to replace the male elephants")
-	public static boolean ARCHIVE_ELEPHANTS = true;
+	@Parameter(key = "select_new_elephants_from_archive", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "If true, the algorithm can access the archive to replace the male elephants")
+	public static boolean SELECT_NEW_ELEPHANTS_FROM_ARCHIVE = true;
 
 	// ---------------------------------------------------------------
 	// Chicken Swarm Optimization Parameters
