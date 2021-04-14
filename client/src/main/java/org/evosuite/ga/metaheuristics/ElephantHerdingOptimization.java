@@ -9,6 +9,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -139,14 +140,17 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		//
 		currentIteration++;
 	}
-	
+
 	private TestSuiteChromosome generateSuiteFromArchive() {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
-		Archive.getArchiveInstance().getSolutions().forEach(suite::addTest);
+		for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
+		  if (Randomness.nextBoolean()) {
+		    suite.addTest(test);
+		  }
+		}
 		return suite;
 	}
-	
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
