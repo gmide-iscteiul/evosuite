@@ -186,9 +186,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			// male replacement
 			List<TestChromosome> newClan = new ArrayList<>(
 					clans.get(i).subList(0, clans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
-
-			clans.set(i, newClan);
-
+			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// New male elephant
 				TestChromosome newElephant;
@@ -210,8 +208,10 @@ public class ElephantDynaMOSA extends DynaMOSA {
 					calculateFitness(newElephant);
 				}
 
-				clans.get(i).add(newElephant);
+				newClan.add(newElephant);
 			}
+
+			clans.set(i, newClan);
 		}
 		// join clans to form population
 		for (List<TestChromosome> c : clans) {

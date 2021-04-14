@@ -105,9 +105,6 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			// Get rid of N males
 			List<T> newClan = new ArrayList<>(newGenerationClans.get(i).subList(0,
 					newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
-			
-			newGenerationClans.set(i, newClan);
-
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				T newElephant;
@@ -129,8 +126,10 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 					calculateFitness(newElephant);
 				}
 
-				newGenerationClans.get(i).add(newElephant);
+				newClan.add(newElephant);
 			}
+
+			newGenerationClans.set(i, newClan);
 		}
 
 		// join clans to form population
