@@ -98,7 +98,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// Determine Fitness
 		calculateFitnessAndSortClans(newGenerationClans);
 
-		// male separation
+		// male replacement
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
 		    // Get rid of N males
 			newGenerationClans.set(i, newGenerationClans.get(i).subList(0, newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
@@ -106,17 +106,23 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				T newElephant;
-				if (Archive.getArchiveInstance().isArchiveEmpty() == true || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
-					newElephant = chromosomeFactory.getChromosome();
-				} else {
+
+				// Get new male
+				if (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE && !Archive.getArchiveInstance().isArchiveEmpty() && Randomness.nextBoolean()) {
 					newElephant = (T) generateSuiteFromArchive();
 					newElephant.mutate();
+				} else {
+					newElephant = chromosomeFactory.getChromosome();
 				}
+				assert newElephant != null;
+
+				// In case new male has changed since last evaluation, re-evaluate it
 				if(newElephant.isChanged()) {
 					fitnessFunctions.forEach(newElephant::addFitness);
 					newElephant.updateAge(currentIteration);
 					calculateFitness(newElephant);
 				}
+
 				newGenerationClans.get(i).add(newElephant);
 			}
 		}

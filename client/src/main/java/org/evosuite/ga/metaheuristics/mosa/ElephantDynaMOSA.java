@@ -191,22 +191,28 @@ public class ElephantDynaMOSA extends AbstractMOSA {
 				}
 			}
 			
+			// male replacement
 			clans.set(i, clans.get(i).subList(0, clans.get(i).size()-Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
-			// male separation
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
-				// eq male elephant
+				// New male elephant
 				TestChromosome newElephant;
-				if (Archive.getArchiveInstance().isArchiveEmpty() == true || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
-					newElephant = chromosomeFactory.getChromosome();
+
+				// Get new male
+				if (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE && !Archive.getArchiveInstance().isArchiveEmpty() && Randomness.nextBoolean()) {
+				  newElephant = Randomness.choice(this.getSolutions()).clone();
+				  newElephant.mutate();
 				} else {
-					newElephant = Randomness.choice(this.getSolutions()).clone();
-					newElephant.mutate();
+					newElephant = chromosomeFactory.getChromosome();
 				}
+				assert newElephant != null;
+
+				// In case new male has changed since last evaluation, re-evaluate it
 				if(newElephant.isChanged()) {
 					fitnessFunctions.forEach(newElephant::addFitness);
 					newElephant.updateAge(currentIteration);
 					calculateFitness(newElephant);	
 				}
+
 				clans.get(i).add(newElephant);
 			}
 		}
