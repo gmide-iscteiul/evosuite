@@ -1,9 +1,7 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
@@ -11,7 +9,6 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -109,7 +106,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				T newElephant;
-				if (getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
+				if (Archive.getArchiveInstance().isArchiveEmpty() == true || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
 					newElephant = chromosomeFactory.getChromosome();
 				} else {
 					newElephant = (T) generateSuiteFromArchive();
@@ -135,10 +132,6 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		updateFitnessFunctionsAndValues();
 		//
 		currentIteration++;
-	}
-
-	private Set<TestFitnessFunction> getCoveredGoals() {
-		return new LinkedHashSet<>(Archive.getArchiveInstance().getCoveredTargets());
 	}
 	
 	private TestSuiteChromosome generateSuiteFromArchive() {

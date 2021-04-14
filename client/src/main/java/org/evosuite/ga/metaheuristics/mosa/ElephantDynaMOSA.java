@@ -3,6 +3,7 @@ package org.evosuite.ga.metaheuristics.mosa;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
@@ -195,7 +196,7 @@ public class ElephantDynaMOSA extends AbstractMOSA {
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// eq male elephant
 				TestChromosome newElephant;
-				if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
+				if (Archive.getArchiveInstance().isArchiveEmpty() == true || Randomness.nextBoolean() || !Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE) {
 					newElephant = chromosomeFactory.getChromosome();
 				} else {
 					newElephant = Randomness.choice(this.getSolutions()).clone();
