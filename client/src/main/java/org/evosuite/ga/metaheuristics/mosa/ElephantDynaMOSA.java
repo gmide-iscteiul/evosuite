@@ -2,11 +2,13 @@ package org.evosuite.ga.metaheuristics.mosa;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +19,11 @@ import java.util.List;
  * Implementation of the ElephantMOSA
  * 
  */
-public class ElephantMOSA extends AbstractMOSA {
+public class ElephantDynaMOSA extends AbstractMOSA {
 
 	private static final long serialVersionUID = -1648258301758721069L;
 
-	private static final Logger logger = LoggerFactory.getLogger(ElephantMOSA.class);
+	private static final Logger logger = LoggerFactory.getLogger(ElephantDynaMOSA.class);
 
 	/** Manager to determine the test goals to consider at each generation */
 	protected MultiCriteriaManager goalsManager = null;
@@ -35,7 +37,7 @@ public class ElephantMOSA extends AbstractMOSA {
 	 *
 	 * @param factory
 	 */
-	public ElephantMOSA(ChromosomeFactory<TestChromosome> factory) {
+	public ElephantDynaMOSA(ChromosomeFactory<TestChromosome> factory) {
 		super(factory);
 
 		if (Properties.POPULATION < Properties.NUMBER_OF_ELEPHANT_CLANS) {
@@ -56,6 +58,63 @@ public class ElephantMOSA extends AbstractMOSA {
 			}
 			clans.add(clan);
 		}
+	}
+	
+	protected List<TestChromosome> breedNextGenerationClan(List<TestChromosome> clan) {
+
+		List<TestChromosome> offspringClan = new ArrayList<>(clan.size());
+		// we apply only clan.size()/2 iterations since in each generation
+		// we generate two offsprings
+		TestChromosome matriarch = clan.get(0); //TODO percorrer clan, take best (fitness)
+		for (int i = 0; i < clan.size() / 2 && !this.isFinished(); i++) {
+			// select best individuals
+
+			/*
+			 * the same individual could be selected twice! Is this a problem for crossover?
+			 * Because crossing over an individual with itself will most certainly give you
+			 * the same individual again...
+			 */
+
+			
+			TestChromosome parent2 = this.selectionFunction.select(clan);
+			TestChromosome offspring1 = matriarch.clone();
+			TestChromosome offspring2 = parent2.clone();
+			// apply crossover
+			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
+				try {
+					this.crossoverFunction.crossOver(offspring1, offspring2);
+				} catch (ConstructionFailedException e) {
+					logger.debug("CrossOver failed.");
+					continue;
+				}
+			}
+
+			this.removeUnusedVariables(offspring1);
+			this.removeUnusedVariables(offspring2);
+			
+			if (offspring1.isChanged()) {
+				this.clearCachedResults(offspring1);
+				offspring1.updateAge(this.currentIteration);
+				this.calculateFitness(offspring1);			
+			}
+
+			if (offspring2.isChanged()) {
+				this.clearCachedResults(offspring2);
+				offspring2.updateAge(this.currentIteration);
+				this.calculateFitness(offspring2);	
+			}
+			offspringClan.add(offspring1);
+			offspringClan.add(offspring2);
+		}
+		notifyMutation(matriarch);
+		matriarch.mutate();
+		if (matriarch.isChanged()) {
+			matriarch.updateAge(currentIteration);
+		}
+		offspringClan.add(matriarch);
+		
+		logger.info("Number of clan offsprings = {}", offspringClan.size());
+		return offspringClan;
 	}
 
 	/** {@inheritDoc} */
@@ -112,6 +171,7 @@ public class ElephantMOSA extends AbstractMOSA {
 					front = this.rankingFunction.getSubfront(index);
 				}
 			}
+			
 
 			// In case the population for the next generation has not been filled up
 			// completely yet,
@@ -128,6 +188,25 @@ public class ElephantMOSA extends AbstractMOSA {
 				for (int k = 0; k < remain; k++) {
 					clans.get(i).add(front.get(k));
 				}
+			}
+			
+			clans.set(i, clans.get(i).subList(0, clans.get(i).size()-Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			// male separation
+			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
+				// eq male elephant
+				TestChromosome newElephant;
+				if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.ARCHIVE_ELEPHANTS) {
+					newElephant = chromosomeFactory.getChromosome();
+				} else {
+					newElephant = Randomness.choice(this.getSolutions()).clone();
+					newElephant.mutate();
+				}
+				if(newElephant.isChanged()) {
+					fitnessFunctions.forEach(newElephant::addFitness);
+					newElephant.updateAge(currentIteration);
+					calculateFitness(newElephant);	
+				}
+				clans.get(i).add(newElephant);
 			}
 		}
 		// join clans to form population

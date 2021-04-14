@@ -125,76 +125,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 	public List<? extends FitnessFunction<TestChromosome>> getFitnessFunctions() {
 		return fitnessFunctions;
 	}
-	
-	protected List<TestChromosome> breedNextGenerationClan(List<TestChromosome> clan) {
 
-		List<TestChromosome> offspringClan = new ArrayList<>(clan.size());
-		// we apply only clan.size()/2 iterations since in each generation
-		// we generate two offsprings
-		for (int i = 0; i < clan.size() / 2 && !this.isFinished(); i++) {
-			// select best individuals
-
-			/*
-			 * the same individual could be selected twice! Is this a problem for crossover?
-			 * Because crossing over an individual with itself will most certainly give you
-			 * the same individual again...
-			 */
-
-			TestChromosome parent1 = this.selectionFunction.select(clan);
-			TestChromosome parent2 = this.selectionFunction.select(clan);
-			TestChromosome offspring1 = parent1.clone();
-			TestChromosome offspring2 = parent2.clone();
-			// apply crossover
-			if (Randomness.nextDouble() <= Properties.CROSSOVER_RATE) {
-				try {
-					this.crossoverFunction.crossOver(offspring1, offspring2);
-				} catch (ConstructionFailedException e) {
-					logger.debug("CrossOver failed.");
-					continue;
-				}
-			}
-
-			this.removeUnusedVariables(offspring1);
-			this.removeUnusedVariables(offspring2);
-
-			// apply mutation on offspring1
-			this.mutate(offspring1, parent1);
-			if (offspring1.isChanged()) {
-				this.clearCachedResults(offspring1);
-				offspring1.updateAge(this.currentIteration);
-				this.calculateFitness(offspring1);
-				offspringClan.add(offspring1);
-			}
-
-			// apply mutation on offspring2
-			this.mutate(offspring2, parent2);
-			if (offspring2.isChanged()) {
-				this.clearCachedResults(offspring2);
-				offspring2.updateAge(this.currentIteration);
-				this.calculateFitness(offspring2);
-				offspringClan.add(offspring2);
-			}
-		}
-		// Add new randomly generate tests
-		for (int i = 0; i < clan.size() * Properties.P_TEST_INSERTION; i++) {
-			final TestChromosome tch;
-			if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
-				tch = this.chromosomeFactory.getChromosome();
-				tch.setChanged(true);
-			} else {
-				tch = Randomness.choice(this.getSolutions()).clone();
-				tch.mutate();
-//					tch.mutate(); // TODO why is it mutated twice?
-			}
-			if (tch.isChanged()) {
-				tch.updateAge(this.currentIteration);
-				this.calculateFitness(tch);
-				offspringClan.add(tch);
-			}
-		}
-		logger.info("Number of clan offsprings = {}", offspringClan.size());
-		return offspringClan;
-	}
 
 	/**
 	 * This method is used to generate new individuals (offspring) from
@@ -332,7 +263,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 	 *
 	 * @param chromosome TestChromosome to clean
 	 */
-	private void clearCachedResults(TestChromosome chromosome) {
+	protected void clearCachedResults(TestChromosome chromosome) {
 		chromosome.clearCachedMutationResults();
 		chromosome.clearCachedResults();
 		chromosome.clearMutationHistory();
@@ -347,7 +278,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 	 * @param chromosome
 	 * @return true or false depending on whether "unused variables" are removed
 	 */
-	private boolean removeUnusedVariables(TestChromosome chromosome) {
+	protected boolean removeUnusedVariables(TestChromosome chromosome) {
 		final int sizeBefore = chromosome.size();
 		final TestCase t = chromosome.getTestCase();
 		final List<Integer> toDelete = new ArrayList<>(chromosome.size());

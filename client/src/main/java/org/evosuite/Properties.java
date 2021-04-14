@@ -314,7 +314,7 @@ public class Properties {
 		// mu-lambda
 		ONE_PLUS_LAMBDA_LAMBDA_GA, ONE_PLUS_ONE_EA, MU_PLUS_LAMBDA_EA, MU_LAMBDA_EA,
 		// many-objective algorithms
-		MOSA, DYNAMOSA, LIPS, MIO, ELEPHANTMOSA,
+		MOSA, DYNAMOSA, LIPS, MIO, ELEPHANT_DYNAMOSA,
 		// multiple-objective optimisation algorithms
 		NSGAII, SPEA2,
 		//SIAs
@@ -786,15 +786,18 @@ public class Properties {
 	public static double SHRINKING_ENCIRCLING_MECHANISM_RATE = 0.5;
 				
 	// ---------------------------------------------------------------
-	// Elephant Herding Optimization Parameters
+	// Elephant Herding Optimization / Elephant_DynaMOSA Parameters
 
-	@Parameter(key = "number_of_elephant_clans", group = "Elephant Herding Optimization", description = "The number of elephant clans")
+	@Parameter(key = "number_of_elephant_clans", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "The number of elephant clans")
 	@IntValue(min = 1)
 	public static int NUMBER_OF_ELEPHANT_CLANS = 1;
 		
-	@Parameter(key = "number_of_male_elephants_per_clan", group = "Elephant Herding Optimization", description = "The number of male elephants in each clan")
+	@Parameter(key = "number_of_male_elephants_per_clan", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "The number of male elephants in each clan")
 	@IntValue(min = 1)
 	public static int NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = 1;
+	
+	@Parameter(key = "archive_elephants", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "If true, the algorithm can access the archive to replace the male elephants")
+	public static boolean ARCHIVE_ELEPHANTS = true;
 
 	// ---------------------------------------------------------------
 	// Chicken Swarm Optimization Parameters

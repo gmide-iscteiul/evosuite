@@ -1,14 +1,20 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +56,9 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		}
 	}
 
+
 	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>();
@@ -93,25 +101,50 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// Determine Fitness
 		calculateFitnessAndSortClans(newGenerationClans);
 
+//		// original male separation
+//		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
+//			int numberOfMaleElephants = 0;
+//			for (int j = (newGenerationClans.get(i).size() - 1); j > 0; j--) {
+//				// eq male elephant
+//				T male_elephant = newGenerationClans.get(i).get(j);
+//				newGenerationClans.get(i).remove(male_elephant);
+//				T newElephant = chromosomeFactory.getChromosome();
+//				fitnessFunctions.forEach(newElephant::addFitness);
+//				newElephant.updateAge(currentIteration);
+//				calculateFitness(newElephant);
+//				newGenerationClans.get(i).add(newElephant);
+//				numberOfMaleElephants++;
+//				if (numberOfMaleElephants >= Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
+//					break;
+//				}
+//			}
+//		}
+		
 		// male separation
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
+			newGenerationClans.set(i, newGenerationClans.get(i).subList(0, newGenerationClans.get(i).size()-Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
 			int numberOfMaleElephants = 0;
-			for (int j = (clans.get(i).size() - 1); j > 0; j--) {
-				// eq male elephant
-				T male_elephant = newGenerationClans.get(i).get(j);
-				newGenerationClans.get(i).remove(male_elephant);
-				T newElephant = chromosomeFactory.getChromosome();
-				fitnessFunctions.forEach(newElephant::addFitness);
-				newElephant.updateAge(currentIteration);
-				calculateFitness(newElephant);
-				newGenerationClans.get(i).add(newElephant);
+			for (int j = (newGenerationClans.get(i).size() - 1); j > 0; j--) {
+				T newElephant;
+				if (getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.ARCHIVE_ELEPHANTS) {
+					newElephant = chromosomeFactory.getChromosome();
+				} else {
+					newElephant = (T) generateSuiteFromArchive();
+					newElephant.mutate();
+				}
+				if(newElephant.isChanged()) {
+					fitnessFunctions.forEach(newElephant::addFitness);
+					newElephant.updateAge(currentIteration);
+					calculateFitness(newElephant);	
+				}
+				newGenerationClans.get(i).add(newElephant);			
 				numberOfMaleElephants++;
-				if (numberOfMaleElephants < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
+				if (numberOfMaleElephants >= Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
 					break;
 				}
 			}
 		}
-
+		
 		// join clans to form population
 		for (List<T> c : newGenerationClans) {
 			newGeneration.addAll(c);
@@ -125,6 +158,17 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		currentIteration++;
 	}
 
+	private Set<TestFitnessFunction> getCoveredGoals() {
+		return new LinkedHashSet<>(Archive.getArchiveInstance().getCoveredTargets());
+	}
+	
+	private TestSuiteChromosome generateSuiteFromArchive() {
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		Archive.getArchiveInstance().getSolutions().forEach(suite::addTest);
+		return suite;
+	}
+	
+	
 	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
