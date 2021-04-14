@@ -72,6 +72,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			// eq for matriarch of each clan
 			List<T> clan = new ArrayList<>();
 			T elephant_matriarch = clans.get(i).get(0);
+			assert elephant_matriarch != null;
 
 			for (int j = 1; j < clans.get(i).size(); j++) {
 				// eq for generic elephant
@@ -145,7 +146,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
 		  if (Randomness.nextBoolean()) {
-		    suite.addTest(test);
+		    suite.addTest(test.clone());
 		  }
 		  if (suite.size() == Properties.MAX_SIZE) {
 		    break;
