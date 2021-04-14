@@ -110,7 +110,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 				T newElephant;
 
 				// Get new male
-				if (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE && !Archive.getArchiveInstance().isArchiveEmpty() && Randomness.nextBoolean()) {
+				if (!Archive.getArchiveInstance().isArchiveEmpty() && (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
 					newElephant = (T) generateSuiteFromArchive();
 					newElephant.mutate();
 				} else {

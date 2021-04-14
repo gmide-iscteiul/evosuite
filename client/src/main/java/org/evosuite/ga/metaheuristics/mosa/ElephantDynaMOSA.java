@@ -192,7 +192,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				TestChromosome newElephant;
 
 				// Get new male
-				if (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE && !Archive.getArchiveInstance().isArchiveEmpty() && Randomness.nextBoolean()) {
+				if (!Archive.getArchiveInstance().isArchiveEmpty() && (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
 				  newElephant = Randomness.choice(this.getSolutions()).clone();
 				  newElephant.mutate();
 				} else {
