@@ -103,8 +103,10 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// male replacement
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
 			// Get rid of N males
-			newGenerationClans.set(i, newGenerationClans.get(i).subList(0,
+			List<T> newClan = new ArrayList<>(newGenerationClans.get(i).subList(0,
 					newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			
+			newGenerationClans.set(i, newClan);
 
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
@@ -118,7 +120,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 				} else {
 					newElephant = chromosomeFactory.getChromosome();
 				}
-				//assert newElephant != null; necessary?
+				// assert newElephant != null; necessary?
 
 				// In case new male has changed since last evaluation, re-evaluate it
 				if (newElephant.isChanged()) {
@@ -145,15 +147,15 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 	}
 
 	private TestSuiteChromosome generateSuiteFromArchive() {
-		//Need to check the Properties.STRATEGY?
+		// Need to check the Properties.STRATEGY?
 		TestSuiteChromosome suite = new TestSuiteChromosome(new ArchiveTestChromosomeFactory());
-		
-		
-		// Deactivate in case a test is executed and would access the archive as this might cause a
-	    // concurrent access.
-		
-		//Properties.TEST_ARCHIVE = false;
-		
+
+		// Deactivate in case a test is executed and would access the archive as this
+		// might cause a
+		// concurrent access.
+
+		// Properties.TEST_ARCHIVE = false;
+
 		for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
 			if (Randomness.nextBoolean()) {
 				suite.addTest(test.clone());
@@ -166,11 +168,11 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 				break;
 			}
 		}
-		
+
 		// re-active it
-		
-	    //Properties.TEST_ARCHIVE = true;
-	    
+
+		// Properties.TEST_ARCHIVE = true;
+
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
 		suite.getCoverageValues().keySet().removeIf(ff -> !fitnessFunctions.contains(ff));

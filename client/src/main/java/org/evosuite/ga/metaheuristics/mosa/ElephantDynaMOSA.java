@@ -54,13 +54,13 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			clans.add(clan);
 		}
 	}
-	
+
 	protected List<TestChromosome> breedNextGenerationClan(List<TestChromosome> clan) {
 
 		List<TestChromosome> offspringClan = new ArrayList<>(clan.size());
 		// we apply only clan.size()/2 iterations since in each generation
 		// we generate two offsprings
-		TestChromosome matriarch = clan.get(0); //TODO percorrer clan, take best (fitness)
+		TestChromosome matriarch = clan.get(0); // TODO percorrer clan, take best (fitness)
 		for (int i = 0; i < clan.size() / 2 && !this.isFinished(); i++) {
 			// select best individuals
 
@@ -70,7 +70,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			 * the same individual again...
 			 */
 
-			
 			TestChromosome parent2 = this.selectionFunction.select(clan);
 			TestChromosome offspring1 = matriarch.clone();
 			TestChromosome offspring2 = parent2.clone();
@@ -86,17 +85,17 @@ public class ElephantDynaMOSA extends DynaMOSA {
 
 			this.removeUnusedVariables(offspring1);
 			this.removeUnusedVariables(offspring2);
-			
+
 			if (offspring1.isChanged()) {
 				this.clearCachedResults(offspring1);
 				offspring1.updateAge(this.currentIteration);
-				this.calculateFitness(offspring1);			
+				this.calculateFitness(offspring1);
 			}
 
 			if (offspring2.isChanged()) {
 				this.clearCachedResults(offspring2);
 				offspring2.updateAge(this.currentIteration);
-				this.calculateFitness(offspring2);	
+				this.calculateFitness(offspring2);
 			}
 			offspringClan.add(offspring1);
 			offspringClan.add(offspring2);
@@ -107,7 +106,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			matriarch.updateAge(currentIteration);
 		}
 		offspringClan.add(matriarch);
-		
+
 		logger.info("Number of clan offsprings = {}", offspringClan.size());
 		return offspringClan;
 	}
@@ -166,7 +165,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 					front = this.rankingFunction.getSubfront(index);
 				}
 			}
-			
 
 			// In case the population for the next generation has not been filled up
 			// completely yet,
@@ -184,27 +182,32 @@ public class ElephantDynaMOSA extends DynaMOSA {
 					clans.get(i).add(front.get(k));
 				}
 			}
-			
+
 			// male replacement
-			clans.set(i, clans.get(i).subList(0, clans.get(i).size()-Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			List<TestChromosome> newClan = new ArrayList<>(
+					clans.get(i).subList(0, clans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+
+			clans.set(i, newClan);
+
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// New male elephant
 				TestChromosome newElephant;
 
 				// Get new male
-				if (!Archive.getArchiveInstance().isArchiveEmpty() && (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
-				  newElephant = Randomness.choice(this.getSolutions()).clone();
-				  newElephant.mutate();
+				if (!Archive.getArchiveInstance().isArchiveEmpty()
+						&& (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
+					newElephant = Randomness.choice(this.getSolutions()).clone();
+					newElephant.mutate();
 				} else {
 					newElephant = chromosomeFactory.getChromosome();
 				}
-				assert newElephant != null;
+				//assert newElephant != null; necessary?
 
 				// In case new male has changed since last evaluation, re-evaluate it
-				if(newElephant.isChanged()) {
+				if (newElephant.isChanged()) {
 					fitnessFunctions.forEach(newElephant::addFitness);
 					newElephant.updateAge(currentIteration);
-					calculateFitness(newElephant);	
+					calculateFitness(newElephant);
 				}
 
 				clans.get(i).add(newElephant);
