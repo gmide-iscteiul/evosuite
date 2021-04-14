@@ -184,7 +184,7 @@ public abstract class AbstractMOSA extends GeneticAlgorithm<TestChromosome> {
 		// Add new randomly generate tests
 		for (int i = 0; i < Properties.POPULATION * Properties.P_TEST_INSERTION; i++) {
 			final TestChromosome tch;
-			if (this.getCoveredGoals().size() == 0 || Randomness.nextBoolean()) {
+			if (Archive.getArchiveInstance().isArchiveEmpty() || Randomness.nextBoolean()) {
 				tch = this.chromosomeFactory.getChromosome();
 				tch.setChanged(true);
 			} else {
