@@ -9,6 +9,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.archive.Archive;
+import org.evosuite.ga.archive.ArchiveTestChromosomeFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -53,7 +54,6 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 			calculateFitnessAndSortPopulation(c);
 		}
 	}
-
 
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
@@ -102,24 +102,26 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 
 		// male replacement
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-		    // Get rid of N males
-			newGenerationClans.set(i, newGenerationClans.get(i).subList(0, newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			// Get rid of N males
+			newGenerationClans.set(i, newGenerationClans.get(i).subList(0,
+					newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
 
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				T newElephant;
 
 				// Get new male
-				if (!Archive.getArchiveInstance().isArchiveEmpty() && (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
+				if (!Archive.getArchiveInstance().isArchiveEmpty()
+						&& (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
 					newElephant = (T) generateSuiteFromArchive();
 					newElephant.mutate();
 				} else {
 					newElephant = chromosomeFactory.getChromosome();
 				}
-				assert newElephant != null;
+				//assert newElephant != null; necessary?
 
 				// In case new male has changed since last evaluation, re-evaluate it
-				if(newElephant.isChanged()) {
+				if (newElephant.isChanged()) {
 					fitnessFunctions.forEach(newElephant::addFitness);
 					newElephant.updateAge(currentIteration);
 					calculateFitness(newElephant);
@@ -128,7 +130,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 				newGenerationClans.get(i).add(newElephant);
 			}
 		}
-		
+
 		// join clans to form population
 		for (List<T> c : newGenerationClans) {
 			newGeneration.addAll(c);
@@ -143,15 +145,35 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 	}
 
 	private TestSuiteChromosome generateSuiteFromArchive() {
-		TestSuiteChromosome suite = new TestSuiteChromosome();
+		//Need to check the Properties.STRATEGY?
+		TestSuiteChromosome suite = new TestSuiteChromosome(new ArchiveTestChromosomeFactory());
+		
+		
+		// Deactivate in case a test is executed and would access the archive as this might cause a
+	    // concurrent access.
+		
+		//Properties.TEST_ARCHIVE = false;
+		
 		for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
-		  if (Randomness.nextBoolean()) {
-		    suite.addTest(test.clone());
-		  }
-		  if (suite.size() == Properties.MAX_SIZE) {
-		    break;
-		  }
+			if (Randomness.nextBoolean()) {
+				suite.addTest(test.clone());
+			} else {
+				if (suite.size() == 0) { // to avoid empty suite
+					suite.addTest(test.clone());
+				}
+			}
+			if (suite.size() == Properties.MAX_SIZE) {
+				break;
+			}
 		}
+		
+		// re-active it
+		
+	    //Properties.TEST_ARCHIVE = true;
+	    
+		// The archive may contain tests evaluated with a fitness function
+		// that is not part of the optimization (e.g. ibranch secondary objective)
+		suite.getCoverageValues().keySet().removeIf(ff -> !fitnessFunctions.contains(ff));
 		return suite;
 	}
 
@@ -206,7 +228,7 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 
 			sortPopulation();
 			sortClans(clans);
-			
+
 			// Local Search
 			// applyLocalSearch();
 
