@@ -2,7 +2,7 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
 import org.evosuite.ga.Chromosome;
@@ -148,28 +148,26 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// Need to check the Properties.STRATEGY?
 		TestSuiteChromosome suite = new TestSuiteChromosome(new ArchiveTestChromosomeFactory());
 
-		// Deactivate in case a test is executed and would access the archive as this
-		// might cause a
-		// concurrent access.
+		// Get all solution in the archive
+		Set<TestChromosome> archiveSolutions = Archive.getArchiveInstance().getSolutions();
 
-		// Properties.TEST_ARCHIVE = false;
+		// To avoid ending up with an empty suite, in here one solution (aka test) is selected at random
+		// and included in the test suite
+		TestChromosome randomChoice = Randomness.choice(archiveSolutions);
+		suite.addTest(randomChoice.clone());
+		// Remove it so that it is not selected again in the following loop
+		archiveSolutions.remove(randomChoice);
 
-		for (TestChromosome test : Archive.getArchiveInstance().getSolutions()) {
-			if (Randomness.nextBoolean()) {
-				suite.addTest(test.clone());
-			} else {
-				if (suite.size() == 0) { // to avoid empty suite
-					suite.addTest(test.clone());
-				}
-			}
+		for (TestChromosome test : archiveSolutions) {
 			if (suite.size() == Properties.MAX_SIZE) {
+				// Stop adding more tests to the test suite if the size of the suite reached
+				// the allowed MAX_SIZE
 				break;
 			}
+			if (Randomness.nextBoolean()) {
+				suite.addTest(test.clone());
+			}
 		}
-
-		// re-active it
-
-		// Properties.TEST_ARCHIVE = true;
 
 		// The archive may contain tests evaluated with a fitness function
 		// that is not part of the optimization (e.g. ibranch secondary objective)
