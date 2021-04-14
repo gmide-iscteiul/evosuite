@@ -147,6 +147,9 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		  if (Randomness.nextBoolean()) {
 		    suite.addTest(test);
 		  }
+		  if (suite.size() == Properties.MAX_SIZE) {
+		    break;
+		  }
 		}
 		return suite;
 	}
