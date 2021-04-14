@@ -101,30 +101,13 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 		// Determine Fitness
 		calculateFitnessAndSortClans(newGenerationClans);
 
-//		// original male separation
-//		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-//			int numberOfMaleElephants = 0;
-//			for (int j = (newGenerationClans.get(i).size() - 1); j > 0; j--) {
-//				// eq male elephant
-//				T male_elephant = newGenerationClans.get(i).get(j);
-//				newGenerationClans.get(i).remove(male_elephant);
-//				T newElephant = chromosomeFactory.getChromosome();
-//				fitnessFunctions.forEach(newElephant::addFitness);
-//				newElephant.updateAge(currentIteration);
-//				calculateFitness(newElephant);
-//				newGenerationClans.get(i).add(newElephant);
-//				numberOfMaleElephants++;
-//				if (numberOfMaleElephants >= Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
-//					break;
-//				}
-//			}
-//		}
-		
 		// male separation
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-			newGenerationClans.set(i, newGenerationClans.get(i).subList(0, newGenerationClans.get(i).size()-Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
-			int numberOfMaleElephants = 0;
-			for (int j = (newGenerationClans.get(i).size() - 1); j > 0; j--) {
+		    // Get rid of N males
+			newGenerationClans.set(i, newGenerationClans.get(i).subList(0, newGenerationClans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+
+			// Add new N males, either from a chromosomeFactory or from the archive
+			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				T newElephant;
 				if (getCoveredGoals().size() == 0 || Randomness.nextBoolean() || !Properties.ARCHIVE_ELEPHANTS) {
 					newElephant = chromosomeFactory.getChromosome();
@@ -135,13 +118,9 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 				if(newElephant.isChanged()) {
 					fitnessFunctions.forEach(newElephant::addFitness);
 					newElephant.updateAge(currentIteration);
-					calculateFitness(newElephant);	
+					calculateFitness(newElephant);
 				}
-				newGenerationClans.get(i).add(newElephant);			
-				numberOfMaleElephants++;
-				if (numberOfMaleElephants >= Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
-					break;
-				}
+				newGenerationClans.get(i).add(newElephant);
 			}
 		}
 		
