@@ -6,7 +6,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.archive.Archive;
 import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
-import org.evosuite.ga.operators.ranking.CrowdingDistance;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -20,16 +19,11 @@ import java.util.List;
  * Implementation of the ElephantMOSA
  * 
  */
-public class ElephantDynaMOSA extends AbstractMOSA {
+public class ElephantDynaMOSA extends DynaMOSA {
 
 	private static final long serialVersionUID = -1648258301758721069L;
 
 	private static final Logger logger = LoggerFactory.getLogger(ElephantDynaMOSA.class);
-
-	/** Manager to determine the test goals to consider at each generation */
-	protected MultiCriteriaManager goalsManager = null;
-
-	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
 
 	private List<List<TestChromosome>> clans = new ArrayList<>();
 
@@ -272,20 +266,5 @@ public class ElephantDynaMOSA extends AbstractMOSA {
 		}
 
 		this.notifySearchFinished();
-	}
-
-	/**
-	 * Calculates the fitness for the given individual. Also updates the list of
-	 * targets to cover, as well as the population of best solutions in the archive.
-	 *
-	 * @param c the chromosome whose fitness to compute
-	 */
-	@Override
-	protected void calculateFitness(TestChromosome c) {
-		if (!isFinished()) {
-			// this also updates the archive and the targets
-			this.goalsManager.calculateFitness(c, this);
-			this.notifyEvaluation(c);
-		}
 	}
 }
