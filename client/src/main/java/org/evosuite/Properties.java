@@ -757,7 +757,7 @@ public class Properties {
 	// Genetic Bee Algorithm Parameters
 
 	@Parameter(key = "number_of_scouts", group = "Genetic Bee Algorithm", description = "Number of scout bees")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_SCOUTS = 1;
 
 	@Parameter(key = "onlooker_bee_rate", group = "Genetic Bee Algorithm", description = "Rate of onlooker bees compared with population")
@@ -765,7 +765,7 @@ public class Properties {
 	public static double ONLOOKER_BEE_RATE = 1.0;
 
 	@Parameter(key = "max_num_iterations_without_improvement", group = "Genetic Bee Algorithm", description = "Max number of iterations allowed without improvement")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int MAX_NUM_ITERATIONS_WITHOUT_IMPROVEMENT = 5;
 		
 	// ---------------------------------------------------------------
@@ -775,7 +775,7 @@ public class Properties {
 	public static boolean SELF_POSITION_CONSIDERATION = false;
 
 	@Parameter(key = "seeking_memory_pool", group = "Cat Swarm Optimizer", description = "Number of copies of the cat while in seeking mode")
-	@IntValue(min = 2)
+	@IntValue(min = 0)
 	public static int SEEKING_MEMORY_POOL = 6;
 			
 	// ---------------------------------------------------------------
@@ -789,11 +789,11 @@ public class Properties {
 	// Elephant Herding Optimization / Elephant_DynaMOSA Parameters
 
 	@Parameter(key = "number_of_elephant_clans", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "The number of elephant clans")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_ELEPHANT_CLANS = 1;
 		
 	@Parameter(key = "number_of_male_elephants_per_clan", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "The number of male elephants in each clan")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = 1;
 	
 	@Parameter(key = "select_new_elephants_from_archive", group = "Elephant Herding Optimization / Elephant_DynaMOSA ", description = "If true, the algorithm can access the archive to replace the male elephants")
@@ -803,26 +803,26 @@ public class Properties {
 	// Chicken Swarm Optimization Parameters
 
 	@Parameter(key = "number_of_roosters", group = "Chicken Swarm Optimization", description = "The number of roosters in the swarm")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_ROOSTERS = 1;
 
 	@Parameter(key = "number_of_chicks", group = "Chicken Swarm Optimization", description = "The number of chicks in the swarm")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_CHICKS = 1;
 	
 	@Parameter(key = "number_of_mother_hens", group = "Chicken Swarm Optimization", description = "The number of mother hens in the swarm")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_MOTHER_HENS = 1;
 	
 	@Parameter(key = "chicken_swarm_update_interval", group = "Chicken Swarm Optimization", description = "Update the swarm's groups in intervals of X iterations")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 5;
 	
 	// ---------------------------------------------------------------
 	// Fish Swarm Algorithm Parameters
 
 	@Parameter(key = "number_of_attempts", group = "Fish Swarm Algorithm", description = "The number of attempts for finding better prey")
-	@IntValue(min = 1)
+	@IntValue(min = 0)
 	public static int NUMBER_OF_ATTEMPTS = 1;
 	
 	// ---------------------------------------------------------------
