@@ -1,6 +1,7 @@
 package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.evosuite.Properties;
@@ -21,7 +22,7 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 
 	private static final long serialVersionUID = -4220392757546401915L;
 	private final Logger logger = LoggerFactory.getLogger(FishSwarmAlgorithm.class);
-	int indexMiddle = Properties.POPULATION / 2;
+	private List<Integer> neighbourhood = new ArrayList<>();
 
 	/**
 	 * Constructor
@@ -33,87 +34,141 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 	}
 
 	private T SwarmPhase(T fish, int indexNumber) {
-		T middleFish;
+		int middleNeighbourIndex = neighbourhood.get(neighbourhood.size() / 2);
+		T middleNeighbour = population.get(middleNeighbourIndex).clone();
 
-		if (indexNumber != indexMiddle) {
-			middleFish = population.get(indexMiddle).clone();
-		} else {
-			middleFish = population.get(indexMiddle + 1).clone();
-		}
-		try {
-			crossoverFunction.crossOver(fish, middleFish);
-			calculateFitness(fish);
-
-			T newFish = bestFish(fish, population.get(indexNumber));
-			if (newFish != fish) {
-				return preyPhase(newFish, indexNumber);
+		boolean condition = false;
+		if (getFitnessFunction().isMaximizationFunction()) {
+			if (middleNeighbour.getFitness() / neighbourhood.size() > fish.getFitness() * Properties.FISH_CONCENTRATION) {
+				condition=true;
 			}
-		} catch (ConstructionFailedException e) {
-			logger.info("Crossover failed.");
-			fish = population.get(indexNumber);
+		} else {
+			if (middleNeighbour.getFitness() / neighbourhood.size() < fish.getFitness() * Properties.FISH_CONCENTRATION) {
+				condition=true;
+			}
+		}
+		
+		if (condition) {
+			try {
+				crossoverFunction.crossOver(fish, middleNeighbour);
+			} catch (ConstructionFailedException e) {
+				logger.info("Crossover failed.");
+				fish = population.get(indexNumber);
+			}
+		} else {
+			preyPhase(fish, indexNumber);
 		}
 		return fish;
 	}
 
 	private T FollowPhase(T fish, int indexNumber) {
-		T bestFish;
-		if (indexNumber != 0) {
-			bestFish = population.get(0).clone();
-		} else {
-			bestFish = population.get(1).clone();
-		}
-		try {
-			crossoverFunction.crossOver(fish, bestFish);
-			calculateFitness(fish);
-
-			T newFish = bestFish(fish, population.get(indexNumber));
-			if (newFish != fish) {
-				return preyPhase(newFish, indexNumber);
+		int bestNeighbourIndex = neighbourhood.get(0);
+		T bestNeighbour = population.get(bestNeighbourIndex).clone();
+		
+		boolean condition = false;
+		if (getFitnessFunction().isMaximizationFunction()) {
+			if (bestNeighbour.getFitness() / neighbourhood.size() > fish.getFitness() * Properties.FISH_CONCENTRATION) {
+				condition=true;
 			}
-		} catch (ConstructionFailedException e) {
-			logger.info("Crossover failed.");
-			fish = population.get(indexNumber);
+		} else {
+			if (bestNeighbour.getFitness() / neighbourhood.size() < fish.getFitness() * Properties.FISH_CONCENTRATION) {
+				condition=true;
+			}
+		}
+		
+		if (condition) {
+			try {
+				crossoverFunction.crossOver(fish, bestNeighbour);
+			} catch (ConstructionFailedException e) {
+				logger.info("Crossover failed.");
+				fish = population.get(indexNumber);
+			}
+		} else {
+			preyPhase(fish, indexNumber);
 		}
 		return fish;
 	}
 
-	private T preyPhase(T fish, int indexNumber) {
+	private void preyPhase(T fish, int indexNumber) {
 
 		for (int i = 0; i < Properties.NUMBER_OF_ATTEMPTS; i++) {
-			int randomNumber = Randomness.nextInt(population.size());
+			int randomNumber = Randomness.nextInt(neighbourhood.size());
+			int randomNeighbourIndex = neighbourhood.get(randomNumber);
 
-			if (randomNumber < indexNumber) {
-				T randomFish = population.get(randomNumber).clone();
+			if (randomNeighbourIndex < indexNumber) {
+				T randomNeighbour = population.get(randomNeighbourIndex).clone();
 				try {
-					crossoverFunction.crossOver(fish, randomFish);
+					crossoverFunction.crossOver(fish, randomNeighbour);
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover failed.");
 					fish = population.get(indexNumber);
 				}
-				return fish;
+				return;
 			}
 		}
-		return randomPhase(fish);
+		randomPhase(fish);
 	}
 
-	private T randomPhase(T fish) {
+	private void randomPhase(T fish) {
 		notifyMutation(fish);
 		fish.mutate();
-		return fish;
 	}
 
 	private T bestFish(T fish1, T fish2) {
 		if (getFitnessFunction().isMaximizationFunction()) {
-			if (fish1.getFitness() > fish2.getFitness()) {
-				return fish1;
-			} else {
-				return fish2;
-			}
+			return (fish1.getFitness() > fish2.getFitness()) ? fish1 : fish2; 	
 		} else {
-			if (fish1.getFitness() < fish2.getFitness()) {
-				return fish1;
+			return (fish1.getFitness() < fish2.getFitness()) ? fish1 : fish2; 
+		}
+	}
+
+	private void createNeighbourhood(int index) {
+
+		double highThreshhold = population.get(index).getFitness()
+				+ (population.get(index).getFitness() * Properties.FISH_NEIGHBOURHOOD);
+		double lowThreshhold = population.get(index).getFitness()
+				- (population.get(index).getFitness() * Properties.FISH_NEIGHBOURHOOD);
+
+		// find better neighbours
+		for (int i = index - 1; i >= 0; i--) {
+			double neighbourFitness = population.get(i).getFitness();
+
+			if (getFitnessFunction().isMaximizationFunction()) {
+				if (highThreshhold >= neighbourFitness) {
+					neighbourhood.add(i);
+				} else {
+					break;
+				}
 			} else {
-				return fish2;
+				if (lowThreshhold <= neighbourFitness) {
+					neighbourhood.add(i);
+				} else {
+					break;
+				}
+			}
+		}
+
+		// sort neighbourhood
+		if (!neighbourhood.isEmpty()) {
+			Collections.sort(neighbourhood);
+		}
+
+		// find worst neighbours
+		for (int i = index + 1; i < population.size(); i++) {
+			double neighbourFitness = population.get(i).getFitness();
+
+			if (getFitnessFunction().isMaximizationFunction()) {
+				if (lowThreshhold <= neighbourFitness) {
+					neighbourhood.add(i);
+				} else {
+					break;
+				}
+			} else {
+				if (highThreshhold >= neighbourFitness) {
+					neighbourhood.add(i);
+				} else {
+					break;
+				}
 			}
 		}
 	}
@@ -125,6 +180,8 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 
 		for (int i = newGeneration.size(); i < population.size(); i++) {
 			T oldFish = population.get(i);
+			createNeighbourhood(i); // save the indexes of the neighbours
+
 			T fish1 = SwarmPhase(oldFish, i);
 			T fish2 = FollowPhase(oldFish, i);
 
@@ -135,7 +192,7 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 			}
 			newGeneration.add(newFish);
 		}
-
+		neighbourhood.clear();
 		population = newGeneration;
 		// archive
 		updateFitnessFunctionsAndValues();

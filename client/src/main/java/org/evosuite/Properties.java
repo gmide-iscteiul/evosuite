@@ -825,6 +825,14 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int NUMBER_OF_ATTEMPTS = 1;
 	
+	@Parameter(key = "fish_neighbourhood", group = "Fish Swarm Algorithm", description = "Rate of the fishes fitness that decides the limits of the neighbourhood")
+	@DoubleValue(min = 0.0)
+	public static double FISH_NEIGHBOURHOOD = 0.1;
+	
+	@Parameter(key = "fish_concentration", group = "Fish Swarm Algorithm", description = "Value that influences the fishes behaviour")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double FISH_CONCENTRATION = 0.1;
+
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters
 
