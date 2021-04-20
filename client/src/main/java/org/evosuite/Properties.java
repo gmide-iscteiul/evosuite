@@ -319,7 +319,8 @@ public class Properties {
 		NSGAII, SPEA2,
 		//SIAs
 		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM, CAT_SWARM_OPTIMIZATION,
-		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION, FISH_SWARM_ALGORITHM
+		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION, FISH_SWARM_ALGORITHM,
+		ARTIFICIAL_ALGAE_ALGORITHM
 	}
 
 	// MOSA PROPERTIES
@@ -819,16 +820,31 @@ public class Properties {
 	public static int CHICKEN_SWARM_UPDATE_INTERVAL = 5;
 	
 	// ---------------------------------------------------------------
+	// Artificial Algae Algorithm Parameters
+
+	@Parameter(key = "max_initial_energy", group = "Artificial Algae Algorithm", description = "Max amount of initial energy available")
+	@DoubleValue(min = 0.0)
+	public static double MAX_INITIAL_ENERGY = 100.0;
+	
+	@Parameter(key = "energy_loss_rate", group = "Artificial Algae Algorithm", description = "Rate at which the algae lose energy")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double ENERGY_LOSS_RATE = 0.2;
+	
+	@Parameter(key = "adaptation_rate", group = "Artificial Algae Algorithm", description = "Rate of adaptation phase")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double ADAPTATION_RATE = 0.1;
+	
+	// ---------------------------------------------------------------
 	// Fish Swarm Algorithm Parameters
 
 	@Parameter(key = "number_of_attempts", group = "Fish Swarm Algorithm", description = "The number of attempts for finding better prey")
 	@IntValue(min = 0)
 	public static int NUMBER_OF_ATTEMPTS = 1;
-	
+
 	@Parameter(key = "fish_neighbourhood", group = "Fish Swarm Algorithm", description = "Rate of the fishes fitness that decides the limits of the neighbourhood")
 	@DoubleValue(min = 0.0)
 	public static double FISH_NEIGHBOURHOOD = 0.1;
-	
+
 	@Parameter(key = "fish_concentration", group = "Fish Swarm Algorithm", description = "Value that influences the fishes behaviour")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double FISH_CONCENTRATION = 0.1;

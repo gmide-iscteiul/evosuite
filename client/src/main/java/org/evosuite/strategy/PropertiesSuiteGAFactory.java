@@ -140,6 +140,9 @@ public class PropertiesSuiteGAFactory
 			case FISH_SWARM_ALGORITHM:
 				logger.info("Chosen search algorithm: FishSwarmAlgorithm");
 				return new FishSwarmAlgorithm<>(factory);
+			case ARTIFICIAL_ALGAE_ALGORITHM:
+				logger.info("Chosen search algorithm: ArtificialAlgaeAlgorithm");
+				return new ArtificialAlgaeAlgorithm<>(factory);
 			case ONE_PLUS_ONE_EA:
 				logger.info("Chosen search algorithm: (1+1)EA");
 				return new OnePlusOneEA<>(factory);
