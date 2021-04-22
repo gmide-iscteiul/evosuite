@@ -40,6 +40,12 @@ public class ElephantDynaMOSA extends DynaMOSA {
 					"Number of elephant clans cannot be bigger than population. Value adjusted to be equal to population");
 			Properties.NUMBER_OF_ELEPHANT_CLANS = Properties.POPULATION;
 		}
+		int elephantsPerClan = Properties.POPULATION / Properties.NUMBER_OF_ELEPHANT_CLANS;
+		if (elephantsPerClan < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
+			LoggingUtils.getEvoLogger().warn(
+					"Number of male elephant per clan cannot be bigger than number of elephants per clan. Value adjusted to be equal to be equal to number of elephant per clan");
+			Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = elephantsPerClan;
+		}
 	}
 
 	private void InitializeClans() {
@@ -60,7 +66,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 		List<TestChromosome> offspringClan = new ArrayList<>(clan.size());
 		// we apply only clan.size()/2 iterations since in each generation
 		// we generate two offsprings
-		TestChromosome matriarch = clan.get(0); // TODO percorrer clan, take best (fitness)
+		TestChromosome matriarch = clan.get(0); // use the one with best fitness or 1st of the clan?
 		for (int i = 0; i < clan.size() / 2 && !this.isFinished(); i++) {
 			// select best individuals
 
@@ -115,6 +121,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	@Override
 	protected void evolve() {
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
+			int clanSize = clans.get(i).size();
 			// Generate offspring, compute their fitness, update the archive and coverage
 			// goals.
 			List<TestChromosome> offspringClan = this.breedNextGenerationClan(clans.get(i));
@@ -185,7 +192,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 
 			// male replacement
 			List<TestChromosome> newClan = new ArrayList<>(
-					clans.get(i).subList(0, clans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+					clans.get(i).subList(0, clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// New male elephant
@@ -213,6 +220,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			clans.set(i, newClan);
 		}
 		// join clans to form population
+		population = new ArrayList<>();
 		for (List<TestChromosome> c : clans) {
 			population.addAll(c);
 		}

@@ -41,6 +41,12 @@ public class ElephantHerdingOptimization<T extends Chromosome<T>> extends Geneti
 					"Number of elephant clans cannot be bigger than population. Value adjusted to be equal to population");
 			Properties.NUMBER_OF_ELEPHANT_CLANS = Properties.POPULATION;
 		}
+		int elephantsPerClan = Properties.POPULATION / Properties.NUMBER_OF_ELEPHANT_CLANS;
+		if (elephantsPerClan < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN) {
+			LoggingUtils.getEvoLogger().warn(
+					"Number of male elephant per clan cannot be bigger than number of elephants per clan. Value adjusted to be equal to be equal to number of elephant per clan");
+			Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN = elephantsPerClan;
+		}
 	}
 
 	private void sortClans(List<List<T>> list) {
