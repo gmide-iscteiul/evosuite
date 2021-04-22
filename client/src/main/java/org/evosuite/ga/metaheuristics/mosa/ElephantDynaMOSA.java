@@ -145,6 +145,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			int remain = Math.max(clans.get(i).size(), this.rankingFunction.getSubfront(0).size());
 			int index = 0;
 			clans.get(i).clear();
+			boolean full = false; // has clan size has been met or not
 
 			// Obtain the first front
 			List<TestChromosome> front = this.rankingFunction.getSubfront(index);
@@ -161,8 +162,17 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 
 				// Add the individuals of this front
-				clans.get(i).addAll(front);
+				for (int j = 0; j < front.size(); j++) {
+					clans.get(i).add(front.get(j));
+					if (clans.get(i).size() >= clanSize) {
+						full = true;
+						break;
+					}
+				}
 
+				if (full) {
+					break;
+				}
 				// Decrement remain
 				remain = remain - front.size();
 
@@ -182,11 +192,15 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			// promote diversity, we consider those individuals with a higher crowding
 			// distance as
 			// being better.
-			if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
+			if (remain > 0 && !front.isEmpty() && !full) { // front contains individuals to insert and clan still isn't
+															// full
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 				front.sort(new OnlyCrowdingComparator<>());
 				for (int k = 0; k < remain; k++) {
 					clans.get(i).add(front.get(k));
+					if (clans.get(i).size() >= clanSize) {
+						break;
+					}
 				}
 			}
 
