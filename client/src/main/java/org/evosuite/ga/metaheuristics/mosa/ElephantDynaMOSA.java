@@ -26,6 +26,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	private static final Logger logger = LoggerFactory.getLogger(ElephantDynaMOSA.class);
 
 	private List<List<TestChromosome>> clans = new ArrayList<>();
+	private List<Integer> clansOriginalSize = new ArrayList<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
@@ -58,6 +59,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				clan.add(population.get(j));
 			}
 			clans.add(clan);
+			clansOriginalSize.add(clan.size());
 		}
 	}
 
@@ -121,7 +123,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	@Override
 	protected void evolve() {
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-			int clanSize = clans.get(i).size();
+			int clanSize = clansOriginalSize.get(i);
 			// Generate offspring, compute their fitness, update the archive and coverage
 			// goals.
 			List<TestChromosome> offspringClan = this.breedNextGenerationClan(clans.get(i));
@@ -205,8 +207,14 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			}
 
 			// male replacement
-			List<TestChromosome> newClan = new ArrayList<>(
-					clans.get(i).subList(0, clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			List<TestChromosome> newClan = null;
+			if (clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN <= clans.get(i).size()) { //if clans.get(i) has enough size to make sublist
+				newClan = new ArrayList<>(
+						clans.get(i).subList(0, clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
+			} else {
+					newClan=new ArrayList<>();
+			}
+
 			// Add new N males, either from a chromosomeFactory or from the archive
 			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
 				// New male elephant
@@ -238,12 +246,28 @@ public class ElephantDynaMOSA extends DynaMOSA {
 		for (List<TestChromosome> c : clans) {
 			population.addAll(c);
 		}
+		
+		//sort population
+		sortTests();
+		
 		this.currentIteration++;
 		// logger.debug("N. fronts = {}", ranking.getNumberOfSubfronts());
 		// logger.debug("1* front size = {}", ranking.getSubfront(0).size());
 		logger.debug("Covered goals = {}", goalsManager.getCoveredGoals().size());
 		logger.debug("Current goals = {}", goalsManager.getCurrentGoals().size());
 		logger.debug("Uncovered goals = {}", goalsManager.getUncoveredGoals().size());
+	}
+
+	private void sortTests() {
+		List<TestChromosome> list = new ArrayList<>();
+		this.rankingFunction.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
+		for(int i=0; i<rankingFunction.getNumberOfSubfronts();i++) {
+			List<TestChromosome> front = this.rankingFunction.getSubfront(i);
+			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
+			front.sort(new OnlyCrowdingComparator<>());
+			list.addAll(front);
+		}
+		population=list;	
 	}
 
 	/**
@@ -258,7 +282,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 		// We are trying to optimize for multiple targets at the same time.
 		this.goalsManager = new MultiCriteriaManager(this.fitnessFunctions);
 
-		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynaMOSA = "
+		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in Elephant_DynaMOSA = "
 				+ this.goalsManager.getCurrentGoals().size() + " / " + this.getUncoveredGoals().size());
 
 		logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
@@ -288,7 +312,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			this.evolve();
 			this.notifyIteration();
 		}
-
+		
 		this.notifySearchFinished();
 	}
 }
