@@ -49,6 +49,8 @@ public class DynaMOSA extends AbstractMOSA {
 	protected MultiCriteriaManager goalsManager = null;
 
 	protected CrowdingDistance<TestChromosome> distance = new CrowdingDistance<>();
+	
+	protected OnlyCrowdingComparator<TestChromosome> comparator = new OnlyCrowdingComparator<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
@@ -114,7 +116,7 @@ public class DynaMOSA extends AbstractMOSA {
 		// being better.
 		if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			front.sort(new OnlyCrowdingComparator<>());
+			front.sort(comparator);
 			for (int k = 0; k < remain; k++) {
 				this.population.add(front.get(k));
 			}

@@ -4,7 +4,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.archive.Archive;
-import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriaManager;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -26,7 +25,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	private static final Logger logger = LoggerFactory.getLogger(ElephantDynaMOSA.class);
 
 	private List<List<TestChromosome>> clans = new ArrayList<>();
-	private List<Integer> clansOriginalSize = new ArrayList<>();
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
@@ -49,7 +47,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 		}
 	}
 
-	private void InitializeClans() {
+	private void initializeClans() {
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
 			int index_start = i * population.size() / Properties.NUMBER_OF_ELEPHANT_CLANS;
 			int index_end = (i + 1) * (population.size()) / Properties.NUMBER_OF_ELEPHANT_CLANS;
@@ -59,7 +57,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				clan.add(population.get(j));
 			}
 			clans.add(clan);
-			clansOriginalSize.add(clan.size());
 		}
 	}
 
@@ -123,7 +120,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	@Override
 	protected void evolve() {
 		for (int i = 0; i < Properties.NUMBER_OF_ELEPHANT_CLANS; i++) {
-			int clanSize = clansOriginalSize.get(i);
 			// Generate offspring, compute their fitness, update the archive and coverage
 			// goals.
 			List<TestChromosome> offspringClan = this.breedNextGenerationClan(clans.get(i));
@@ -147,7 +143,6 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			int remain = Math.max(clans.get(i).size(), this.rankingFunction.getSubfront(0).size());
 			int index = 0;
 			clans.get(i).clear();
-			boolean full = false; // has clan size has been met or not
 
 			// Obtain the first front
 			List<TestChromosome> front = this.rankingFunction.getSubfront(index);
@@ -164,17 +159,8 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 
 				// Add the individuals of this front
-				for (int j = 0; j < front.size(); j++) {
-					clans.get(i).add(front.get(j));
-					if (clans.get(i).size() >= clanSize) {
-						full = true;
-						break;
-					}
-				}
+				this.population.addAll(front);
 
-				if (full) {
-					break;
-				}
 				// Decrement remain
 				remain = remain - front.size();
 
@@ -194,62 +180,61 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			// promote diversity, we consider those individuals with a higher crowding
 			// distance as
 			// being better.
-			if (remain > 0 && !front.isEmpty() && !full) { // front contains individuals to insert and clan still isn't
-															// full
+			if (remain > 0 && !front.isEmpty()) { // front contains individuals to insert
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-				front.sort(new OnlyCrowdingComparator<>());
+				front.sort(comparator);
 				for (int k = 0; k < remain; k++) {
-					clans.get(i).add(front.get(k));
-					if (clans.get(i).size() >= clanSize) {
-						break;
-					}
+					this.population.add(front.get(k));
 				}
 			}
 
 			// male replacement
-			List<TestChromosome> newClan = null;
-			if (clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN <= clans.get(i).size()) { //if clans.get(i) has enough size to make sublist
-				newClan = new ArrayList<>(
-						clans.get(i).subList(0, clanSize - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
-			} else {
-					newClan=new ArrayList<>();
-			}
-
-			// Add new N males, either from a chromosomeFactory or from the archive
-			for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
-				// New male elephant
-				TestChromosome newElephant;
-
-				// Get new male
-				if (!Archive.getArchiveInstance().isArchiveEmpty()
-						&& (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
-					newElephant = Randomness.choice(this.getSolutions()).clone();
-					newElephant.mutate();
+			if (Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN > 0) {
+				List<TestChromosome> newClan = null;
+				if (clans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN > 0) {
+					// if clans.get(i) has enough size to make sublist
+					newClan = new ArrayList<>(clans.get(i).subList(0,
+							clans.get(i).size() - Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN));
 				} else {
-					newElephant = chromosomeFactory.getChromosome();
+					newClan = new ArrayList<>();
 				}
 
-				// In case new male has changed since last evaluation, re-evaluate it
-				if (newElephant.isChanged()) {
-					fitnessFunctions.forEach(newElephant::addFitness);
-					newElephant.updateAge(currentIteration);
-					calculateFitness(newElephant);
+				// Add new N males, either from a chromosomeFactory or from the archive
+				for (int j = 0; j < Properties.NUMBER_OF_MALE_ELEPHANTS_PER_CLAN; j++) {
+					// New male elephant
+					TestChromosome newElephant;
+
+					// Get new male
+					if (!Archive.getArchiveInstance().isArchiveEmpty()
+							&& (Properties.SELECT_NEW_ELEPHANTS_FROM_ARCHIVE || Randomness.nextBoolean())) {
+						newElephant = Randomness.choice(this.getSolutions()).clone();
+						newElephant.mutate();
+					} else {
+						newElephant = chromosomeFactory.getChromosome();
+					}
+
+					// In case new male has changed since last evaluation, re-evaluate it
+					if (newElephant.isChanged()) {
+						fitnessFunctions.forEach(newElephant::addFitness);
+						newElephant.updateAge(currentIteration);
+						calculateFitness(newElephant);
+					}
+
+					newClan.add(newElephant);
 				}
 
-				newClan.add(newElephant);
+				clans.set(i, newClan);
 			}
-
-			clans.set(i, newClan);
 		}
 		// join clans to form population
 		population = new ArrayList<>();
 		for (List<TestChromosome> c : clans) {
 			population.addAll(c);
 		}
-		
-		//sort population
+
+		// sort population
 		sortTests();
-		
+
 		this.currentIteration++;
 		// logger.debug("N. fronts = {}", ranking.getNumberOfSubfronts());
 		// logger.debug("1* front size = {}", ranking.getSubfront(0).size());
@@ -261,13 +246,13 @@ public class ElephantDynaMOSA extends DynaMOSA {
 	private void sortTests() {
 		List<TestChromosome> list = new ArrayList<>();
 		this.rankingFunction.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
-		for(int i=0; i<rankingFunction.getNumberOfSubfronts();i++) {
+		for (int i = 0; i < rankingFunction.getNumberOfSubfronts(); i++) {
 			List<TestChromosome> front = this.rankingFunction.getSubfront(i);
 			this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
-			front.sort(new OnlyCrowdingComparator<>());
+			front.sort(comparator);
 			list.addAll(front);
 		}
-		population=list;	
+		population = list;
 	}
 
 	/**
@@ -290,7 +275,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 		if (this.population.isEmpty()) {
 			// Initialize the population by creating solutions at random.
 			this.initializePopulation();
-			InitializeClans();
+			initializeClans();
 		}
 
 		// Calculate dominance ranks and crowding distance. This is required to decide
@@ -312,7 +297,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 			this.evolve();
 			this.notifyIteration();
 		}
-		
+
 		this.notifySearchFinished();
 	}
 }
