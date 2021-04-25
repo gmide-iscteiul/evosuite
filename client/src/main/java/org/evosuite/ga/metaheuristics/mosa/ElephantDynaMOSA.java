@@ -159,7 +159,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 
 				// Add the individuals of this front
-				this.population.addAll(front);
+				clans.get(i).addAll(front);
 
 				// Decrement remain
 				remain = remain - front.size();
@@ -184,7 +184,7 @@ public class ElephantDynaMOSA extends DynaMOSA {
 				this.distance.fastEpsilonDominanceAssignment(front, this.goalsManager.getCurrentGoals());
 				front.sort(comparator);
 				for (int k = 0; k < remain; k++) {
-					this.population.add(front.get(k));
+					clans.get(i).add(front.get(k));
 				}
 			}
 
