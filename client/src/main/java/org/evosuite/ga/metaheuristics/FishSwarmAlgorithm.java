@@ -34,20 +34,24 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 	}
 
 	private T SwarmPhase(T fish, int indexNumber) {
-		int middleNeighbourIndex = neighbourhood.get(neighbourhood.size() / 2);
-		T middleNeighbour = population.get(middleNeighbourIndex).clone();
-
 		boolean condition = false;
-		if (getFitnessFunction().isMaximizationFunction()) {
-			if (middleNeighbour.getFitness() / neighbourhood.size() > fish.getFitness() * Properties.FISH_CONCENTRATION) {
-				condition=true;
-			}
-		} else {
-			if (middleNeighbour.getFitness() / neighbourhood.size() < fish.getFitness() * Properties.FISH_CONCENTRATION) {
-				condition=true;
+		T middleNeighbour = null;
+		if (!neighbourhood.isEmpty()) {
+			int middleNeighbourIndex = neighbourhood.get(neighbourhood.size() / 2);
+			middleNeighbour = population.get(middleNeighbourIndex).clone();
+
+			if (getFitnessFunction().isMaximizationFunction()) {
+				if (middleNeighbour.getFitness() / neighbourhood.size() > fish.getFitness()
+						* Properties.FISH_CONCENTRATION) {
+					condition = true;
+				}
+			} else {
+				if (middleNeighbour.getFitness() / neighbourhood.size() < fish.getFitness()
+						* Properties.FISH_CONCENTRATION) {
+					condition = true;
+				}
 			}
 		}
-		
 		if (condition) {
 			try {
 				crossoverFunction.crossOver(fish, middleNeighbour);
@@ -62,20 +66,24 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 	}
 
 	private T FollowPhase(T fish, int indexNumber) {
-		int bestNeighbourIndex = neighbourhood.get(0);
-		T bestNeighbour = population.get(bestNeighbourIndex).clone();
-		
 		boolean condition = false;
-		if (getFitnessFunction().isMaximizationFunction()) {
-			if (bestNeighbour.getFitness() / neighbourhood.size() > fish.getFitness() * Properties.FISH_CONCENTRATION) {
-				condition=true;
-			}
-		} else {
-			if (bestNeighbour.getFitness() / neighbourhood.size() < fish.getFitness() * Properties.FISH_CONCENTRATION) {
-				condition=true;
+		T bestNeighbour = null;
+		if (!neighbourhood.isEmpty()) {
+			int bestNeighbourIndex = neighbourhood.get(0);
+			bestNeighbour = population.get(bestNeighbourIndex).clone();
+
+			if (getFitnessFunction().isMaximizationFunction()) {
+				if (bestNeighbour.getFitness() / neighbourhood.size() > fish.getFitness()
+						* Properties.FISH_CONCENTRATION) {
+					condition = true;
+				}
+			} else {
+				if (bestNeighbour.getFitness() / neighbourhood.size() < fish.getFitness()
+						* Properties.FISH_CONCENTRATION) {
+					condition = true;
+				}
 			}
 		}
-		
 		if (condition) {
 			try {
 				crossoverFunction.crossOver(fish, bestNeighbour);
@@ -90,20 +98,21 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 	}
 
 	private void preyPhase(T fish, int indexNumber) {
+		if (!neighbourhood.isEmpty()) {
+			for (int i = 0; i < Properties.NUMBER_OF_ATTEMPTS; i++) {
+				int randomNumber = Randomness.nextInt(neighbourhood.size());
+				int randomNeighbourIndex = neighbourhood.get(randomNumber);
 
-		for (int i = 0; i < Properties.NUMBER_OF_ATTEMPTS; i++) {
-			int randomNumber = Randomness.nextInt(neighbourhood.size());
-			int randomNeighbourIndex = neighbourhood.get(randomNumber);
-
-			if (randomNeighbourIndex < indexNumber) {
-				T randomNeighbour = population.get(randomNeighbourIndex).clone();
-				try {
-					crossoverFunction.crossOver(fish, randomNeighbour);
-				} catch (ConstructionFailedException e) {
-					logger.info("Crossover failed.");
-					fish = population.get(indexNumber);
+				if (randomNeighbourIndex < indexNumber) {
+					T randomNeighbour = population.get(randomNeighbourIndex).clone();
+					try {
+						crossoverFunction.crossOver(fish, randomNeighbour);
+					} catch (ConstructionFailedException e) {
+						logger.info("Crossover failed.");
+						fish = population.get(indexNumber);
+					}
+					return;
 				}
-				return;
 			}
 		}
 		randomPhase(fish);
@@ -116,9 +125,9 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 
 	private T bestFish(T fish1, T fish2) {
 		if (getFitnessFunction().isMaximizationFunction()) {
-			return (fish1.getFitness() > fish2.getFitness()) ? fish1 : fish2; 	
+			return (fish1.getFitness() > fish2.getFitness()) ? fish1 : fish2;
 		} else {
-			return (fish1.getFitness() < fish2.getFitness()) ? fish1 : fish2; 
+			return (fish1.getFitness() < fish2.getFitness()) ? fish1 : fish2;
 		}
 	}
 
@@ -179,20 +188,21 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 		List<T> newGeneration = new ArrayList<>(elitism());
 
 		for (int i = newGeneration.size(); i < population.size(); i++) {
-			T oldFish = population.get(i);
+			T oldFish = population.get(i).clone();
 			createNeighbourhood(i); // save the indexes of the neighbours
-
+		
 			T fish1 = SwarmPhase(oldFish, i);
 			T fish2 = FollowPhase(oldFish, i);
-
+			
 			// bestBehaviourPhase
 			T newFish = bestFish(fish1, fish2);
 			if (newFish.isChanged()) {
 				newFish.updateAge(currentIteration);
 			}
 			newGeneration.add(newFish);
+			neighbourhood.clear();
 		}
-		neighbourhood.clear();
+
 		population = newGeneration;
 		// archive
 		updateFitnessFunctionsAndValues();

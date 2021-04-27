@@ -2,6 +2,7 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
@@ -9,6 +10,9 @@ import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.ga.archive.Archive;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -46,29 +50,34 @@ public class ArtificialAlgaeAlgorithm<T extends Chromosome<T>> extends GeneticAl
 		}
 	}
 
-	private T getOldestAlgae(List<T> list) {
-		T oldestAlgae = list.get(0);
-		for (int i = 1; i < list.size(); i++) {
-			if (oldestAlgae.getAge() >= list.get(i).getAge()) {
-				oldestAlgae = list.get(i);
+	private int getOldestAlgaeIndex(List<T> list) {
+		int index = Properties.ELITE;
+		for (int i = Properties.ELITE + 1; i < list.size(); i++) {
+			if (list.get(index).getAge() >= list.get(i).getAge()) {
+				index = i;
 			}
 		}
-		return oldestAlgae;
+		return index;
 	}
 
 	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
 		List<T> newGeneration = new ArrayList<>(elitism());
 
+		// evolutionary process phase
 		boolean starvation = true;
 		for (int i = newGeneration.size(); i < population.size(); i++) {
+			T finalAlgae = population.get(i);
+			T algae = finalAlgae.clone();
 			// energy = directly proportional to position;
 			double energy = Properties.MAX_INITIAL_ENERGY - i;
-			while (energy > 0) {
+			if (energy < 0) {
+				energy = 0;
+			}
+			while (energy > 0 && !isFinished()) {
 				energy -= (Properties.ENERGY_LOSS_RATE * Properties.MAX_INITIAL_ENERGY);
-
-				T algae = population.get(i).clone();
 				T selectedAlgae = selectionFunction.select(population).clone();
 
 				try {
@@ -76,46 +85,58 @@ public class ArtificialAlgaeAlgorithm<T extends Chromosome<T>> extends GeneticAl
 					calculateFitness(algae);
 				} catch (ConstructionFailedException e) {
 					logger.info("Crossover failed.");
-					algae = population.get(i);
+					algae = finalAlgae;
 				}
 
-				T newAlgae = bestAlgae(algae, population.get(i));
+				T newAlgae = bestAlgae(algae, finalAlgae);
 				if (newAlgae == algae) { // new solution is better
-					if (newAlgae.isChanged()) {
-						newAlgae.updateAge(currentIteration);
-					}
-					newGeneration.add(newAlgae);
+					finalAlgae = newAlgae;
 					starvation = false;
-					break; // makes sense to me!!!!
 				} else {
 					energy -= (Properties.ENERGY_LOSS_RATE * Properties.MAX_INITIAL_ENERGY);
 				}
+				if (energy > 0) {
+					algae = finalAlgae.clone();
+				}
 			}
-			if (starvation) {
-				newGeneration.add(population.get(i)); // manintain population number
+			if (!starvation) { // if a better solution was found
+				finalAlgae.updateAge(currentIteration);
+				newGeneration.add(finalAlgae);
+			} else {
+				newGeneration.add(population.get(i));
 			}
 		}
 
+		// reproduction phase
 		sortPopulation(newGeneration);
-		T bestAlgae = newGeneration.get(0).clone();
-		T worstAlgae = newGeneration.get(newGeneration.size() - 1);
-		try {
-			crossoverFunction.crossOver(worstAlgae, bestAlgae);
-		} catch (ConstructionFailedException e) {
-			logger.info("Crossover failed.");
-			worstAlgae = newGeneration.get(newGeneration.size() - 1);
-		}
 
-		calculateFitness(worstAlgae); // all individuals with fitness calculated
+		Set<TestChromosome> archiveSolutions = Archive.getArchiveInstance().getSolutions();
+		TestChromosome randomTest = Randomness.choice(archiveSolutions);
 
+		TestSuiteChromosome worstAlgae = (TestSuiteChromosome) newGeneration.get(newGeneration.size() - 1);
+		int random = Randomness.nextInt(worstAlgae.size());
+		worstAlgae.setTestChromosome(random, randomTest);
+		// The archive may contain tests evaluated with a fitness function
+		// that is not part of the optimization (e.g. ibranch secondary objective)
+		worstAlgae.getCoverageValues().keySet().removeIf(ff -> !fitnessFunctions.contains(ff));
+
+		calculateFitness((T) worstAlgae); // all individuals with fitness calculated
+
+		// Adaptation phase
 		if (Randomness.nextDouble() < Properties.ADAPTATION_RATE) {
-			bestAlgae = newGeneration.get(0).clone();
-			T oldestAlgae = getOldestAlgae(newGeneration);
+			T bestAlgae = newGeneration.get(0).clone();
+			int index = getOldestAlgaeIndex(newGeneration);
+			T oldestAlgae = newGeneration.get(index).clone();
 			try {
 				crossoverFunction.crossOver(oldestAlgae, bestAlgae);
+				calculateFitness(oldestAlgae);
+				newGeneration.remove(index);
+				newGeneration.add(oldestAlgae);
+				if (oldestAlgae.isChanged()) {
+					oldestAlgae.updateAge(currentIteration);
+				}
 			} catch (ConstructionFailedException e) {
 				logger.info("Crossover failed.");
-				oldestAlgae = getOldestAlgae(newGeneration);
 			}
 		}
 
@@ -164,7 +185,7 @@ public class ArtificialAlgaeAlgorithm<T extends Chromosome<T>> extends GeneticAl
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 
 			evolve();
-			// Determine fitness
+
 			sortPopulation();
 
 			// Local Search

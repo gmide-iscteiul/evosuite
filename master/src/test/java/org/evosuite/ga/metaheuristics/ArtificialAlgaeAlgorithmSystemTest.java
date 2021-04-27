@@ -28,7 +28,7 @@ public class ArtificialAlgaeAlgorithmSystemTest extends SystemTestBase {
 		Properties.SEARCH_BUDGET = budget;
 		Properties.MAX_INITIAL_ENERGY = 50;
 		Properties.ENERGY_LOSS_RATE = 0.2;
-		Properties.ADAPTATION_RATE = 0.5;
+		Properties.ADAPTATION_RATE = 0.7;
 
 		EvoSuite evosuite = new EvoSuite();
 

@@ -320,7 +320,7 @@ public class Properties {
 		//SIAs
 		GREY_WOLF_OPTIMIZER, GENETIC_BEE_ALGORITHM, WHALE_OPTIMIZATION_ALGORITHM, CAT_SWARM_OPTIMIZATION,
 		ELEPHANT_HERDING_OPTIMIZATION, CHICKEN_SWARM_OPTIMIZATION, MOTH_FLAME_OPTIMIZATION, FISH_SWARM_ALGORITHM,
-		ARTIFICIAL_ALGAE_ALGORITHM
+		ARTIFICIAL_ALGAE_ALGORITHM, PARTICLE_SWARM_OPTIMIZATION
 	}
 
 	// MOSA PROPERTIES
@@ -843,11 +843,11 @@ public class Properties {
 
 	@Parameter(key = "fish_neighbourhood", group = "Fish Swarm Algorithm", description = "Rate of the fishes fitness that decides the limits of the neighbourhood")
 	@DoubleValue(min = 0.0)
-	public static double FISH_NEIGHBOURHOOD = 0.1;
+	public static double FISH_NEIGHBOURHOOD = 0.0025;
 
 	@Parameter(key = "fish_concentration", group = "Fish Swarm Algorithm", description = "Value that influences the fishes behaviour")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double FISH_CONCENTRATION = 0.1;
+	public static double FISH_CONCENTRATION = 0.04;
 
 	// ---------------------------------------------------------------
 	// Chemical Reaction Optimization Parameters

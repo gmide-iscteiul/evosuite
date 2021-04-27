@@ -16,17 +16,14 @@ import org.junit.Test;
 import com.examples.with.different.packagename.ClassHierarchyIncludingInterfaces;
 import com.examples.with.different.packagename.XMLElement2;
 
-public class FishSwarmAlgorithmSystemTest extends SystemTestBase {
+public class ParticleSwarmOptimizationSystemTest extends SystemTestBase {
 	public List<Chromosome> setup(StoppingCondition sc, int budget, String cut) {
 		Properties.CRITERION = new Criterion[1];
 		Properties.CRITERION[0] = Criterion.BRANCH;
-		Properties.ALGORITHM = Algorithm.FISH_SWARM_ALGORITHM;
+		Properties.ALGORITHM = Algorithm.PARTICLE_SWARM_OPTIMIZATION;
 		Properties.POPULATION = 25;
 		Properties.STOPPING_CONDITION = sc;
 		Properties.SEARCH_BUDGET = budget;
-		Properties.NUMBER_OF_ATTEMPTS = 1;
-		Properties.FISH_NEIGHBOURHOOD = 0.0025;
-		Properties.FISH_CONCENTRATION = 0.04;
 
 		EvoSuite evosuite = new EvoSuite();
 
@@ -46,7 +43,7 @@ public class FishSwarmAlgorithmSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testFishSwarmAlgorithmWithLimitedTime() {
+	public void testParticleSwarmOptimizationWithLimitedTime() {
 
 		List<Chromosome> population = this.setup(StoppingCondition.MAXTIME, 15, XMLElement2.class.getCanonicalName());
 
@@ -56,7 +53,7 @@ public class FishSwarmAlgorithmSystemTest extends SystemTestBase {
 	}
 
 	@Test
-	public void testFishSwarmAlgorithmWithLimitedGenerations() {
+	public void testParticleSwarmOptimizationWithLimitedGenerations() {
 
 		List<Chromosome> population = this.setup(StoppingCondition.MAXGENERATIONS, 10,
 				ClassHierarchyIncludingInterfaces.class.getCanonicalName());
