@@ -40,14 +40,15 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 			int middleNeighbourIndex = neighbourhood.get(neighbourhood.size() / 2);
 			middleNeighbour = population.get(middleNeighbourIndex).clone();
 
+			double neighbourDivideByNeighbourhood = middleNeighbour.getFitness() / neighbourhood.size();
+			double fishTimesConcentration = fish.getFitness() * Properties.FISH_CONCENTRATION;
+
 			if (getFitnessFunction().isMaximizationFunction()) {
-				if (middleNeighbour.getFitness() / neighbourhood.size() > fish.getFitness()
-						* Properties.FISH_CONCENTRATION) {
+				if (neighbourDivideByNeighbourhood > fishTimesConcentration) {
 					condition = true;
 				}
 			} else {
-				if (middleNeighbour.getFitness() / neighbourhood.size() < fish.getFitness()
-						* Properties.FISH_CONCENTRATION) {
+				if (neighbourDivideByNeighbourhood < fishTimesConcentration) {
 					condition = true;
 				}
 			}
@@ -72,14 +73,15 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 			int bestNeighbourIndex = neighbourhood.get(0);
 			bestNeighbour = population.get(bestNeighbourIndex).clone();
 
+			double neighbourDivideByNeighbourhood = bestNeighbour.getFitness() / neighbourhood.size();
+			double fishTimesConcentration = fish.getFitness() * Properties.FISH_CONCENTRATION;
+
 			if (getFitnessFunction().isMaximizationFunction()) {
-				if (bestNeighbour.getFitness() / neighbourhood.size() > fish.getFitness()
-						* Properties.FISH_CONCENTRATION) {
+				if (neighbourDivideByNeighbourhood > fishTimesConcentration) {
 					condition = true;
 				}
 			} else {
-				if (bestNeighbour.getFitness() / neighbourhood.size() < fish.getFitness()
-						* Properties.FISH_CONCENTRATION) {
+				if (neighbourDivideByNeighbourhood < fishTimesConcentration) {
 					condition = true;
 				}
 			}
@@ -158,9 +160,10 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 		}
 
 		// sort neighbourhood
-		if (!neighbourhood.isEmpty()) {
+		if (neighbourhood.size() > 1) {
 			Collections.sort(neighbourhood);
 		}
+		
 
 		// find worst neighbours
 		for (int i = index + 1; i < population.size(); i++) {
@@ -190,10 +193,10 @@ public class FishSwarmAlgorithm<T extends Chromosome<T>> extends GeneticAlgorith
 		for (int i = newGeneration.size(); i < population.size(); i++) {
 			T oldFish = population.get(i).clone();
 			createNeighbourhood(i); // save the indexes of the neighbours
-		
+
 			T fish1 = SwarmPhase(oldFish, i);
 			T fish2 = FollowPhase(oldFish, i);
-			
+
 			// bestBehaviourPhase
 			T newFish = bestFish(fish1, fish2);
 			if (newFish.isChanged()) {

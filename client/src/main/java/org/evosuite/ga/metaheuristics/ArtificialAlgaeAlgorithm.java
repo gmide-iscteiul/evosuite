@@ -2,7 +2,6 @@ package org.evosuite.ga.metaheuristics;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TimeController;
@@ -10,7 +9,6 @@ import org.evosuite.Properties.SelectionFunction;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.ga.archive.Archive;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
@@ -110,25 +108,23 @@ public class ArtificialAlgaeAlgorithm<T extends Chromosome<T>> extends GeneticAl
 		// reproduction phase
 		sortPopulation(newGeneration);
 
-		Set<TestChromosome> archiveSolutions = Archive.getArchiveInstance().getSolutions();
-		TestChromosome randomTest = Randomness.choice(archiveSolutions);
-
+		TestSuiteChromosome bestAlgae = (TestSuiteChromosome) newGeneration.get(0);
+		int random1 = Randomness.nextInt(bestAlgae.size());
+		TestChromosome randomTest = bestAlgae.getTestChromosome(random1);
+		
 		TestSuiteChromosome worstAlgae = (TestSuiteChromosome) newGeneration.get(newGeneration.size() - 1);
-		int random = Randomness.nextInt(worstAlgae.size());
-		worstAlgae.setTestChromosome(random, randomTest);
-		// The archive may contain tests evaluated with a fitness function
-		// that is not part of the optimization (e.g. ibranch secondary objective)
-		worstAlgae.getCoverageValues().keySet().removeIf(ff -> !fitnessFunctions.contains(ff));
-
+		int random2 = Randomness.nextInt(worstAlgae.size());
+		worstAlgae.setTestChromosome(random2, randomTest);
+		
 		calculateFitness((T) worstAlgae); // all individuals with fitness calculated
 
 		// Adaptation phase
 		if (Randomness.nextDouble() < Properties.ADAPTATION_RATE) {
-			T bestAlgae = newGeneration.get(0).clone();
+			T bestAlgaeClone = newGeneration.get(0).clone();
 			int index = getOldestAlgaeIndex(newGeneration);
 			T oldestAlgae = newGeneration.get(index).clone();
 			try {
-				crossoverFunction.crossOver(oldestAlgae, bestAlgae);
+				crossoverFunction.crossOver(oldestAlgae, bestAlgaeClone);
 				calculateFitness(oldestAlgae);
 				newGeneration.remove(index);
 				newGeneration.add(oldestAlgae);
