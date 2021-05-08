@@ -93,6 +93,8 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 
 	private List<List<TestGenerationResult>> results = new ArrayList<>();
 
+	private Map<String, StringSequenceOutputVariableFactory> stringSequenceOutputVariableFactories = new TreeMap<>();
+
 	private SearchStatistics() { 
 		switch(Properties.STATISTICS_BACKEND) {
 		case CONSOLE:
@@ -147,6 +149,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyMutationCoverageTimeline.name(), new OnlyMutationCoverageSequenceOutputVariableFactory());
 		sequenceOutputVariableFactories.put(RuntimeVariable.DiversityTimeline.name(), 
             DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DiversityTimeline));
+		
+		stringSequenceOutputVariableFactories.put(RuntimeVariable.PopulationFitnessTimeline.name(),
+				StringSequenceOutputVariableFactory.getString(RuntimeVariable.PopulationFitnessTimeline));
 		
 		sequenceOutputVariableFactories.put(RuntimeVariable.DensityTimeline.name(), 
 		    DirectSequenceOutputVariableFactory.getDouble(RuntimeVariable.DensityTimeline));
@@ -203,6 +208,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		for(SequenceOutputVariableFactory<?> v : sequenceOutputVariableFactories.values()) {
 			v.update((TestSuiteChromosome) individual);
 		}
+		for (StringSequenceOutputVariableFactory v : stringSequenceOutputVariableFactories.values()) {
+			v.update();
+		}
 	}
 
 	/**
@@ -223,9 +231,13 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
          */
         if (sequenceOutputVariableFactories.containsKey(variable.getName())) {
           DirectSequenceOutputVariableFactory<?> v = (DirectSequenceOutputVariableFactory<?>) sequenceOutputVariableFactories.get(variable.getName());
-          v.setValue(variable.getValue());
-        } else
-            outputVariables.put(variable.getName(), variable);
+          v.setValue(variable.getValue());        
+        }         
+		else if (stringSequenceOutputVariableFactories.containsKey(variable.getName())) {
+			StringSequenceOutputVariableFactory v = (StringSequenceOutputVariableFactory) stringSequenceOutputVariableFactories.get(variable.getName());
+			v.setValue(variable.getValue());
+		} else
+			outputVariables.put(variable.getName(), variable);
     }
 
 	public void addTestGenerationResult(List<TestGenerationResult> result) {
@@ -311,13 +323,19 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			} else if(variableFactories.containsKey(variableName)) {
 				//values extracted from the individual
 				variables.put(variableName, variableFactories.get(variableName).getVariable(individual));
-			} else if(sequenceOutputVariableFactories.containsKey(variableName)) {
+			} else if (sequenceOutputVariableFactories.containsKey(variableName)) {
 				/*
-				 * time related values, which will be expanded in a list of values
-				 * through time
+				 * time related values, which will be expanded in a list of values through time
 				 */
-				for(OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
-					variables.put(var.getName(), var); 
+				for (OutputVariable<?> var : sequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
+					variables.put(var.getName(), var);
+				}
+			} else if (stringSequenceOutputVariableFactories.containsKey(variableName)) {
+				/*
+				 * time related values, which will be expanded in a list of values through time
+				 */
+				for (OutputVariable<?> var : stringSequenceOutputVariableFactories.get(variableName).getOutputVariables()) {
+					variables.put(var.getName(), var);
 				}
 			} else if(skip_missing) {
 				// if variable doesn't exist, return an empty value instead
@@ -440,6 +458,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 			if(information.getState() == ClientState.SEARCH) {
 				searchStartTime = System.currentTimeMillis();
 				for(SequenceOutputVariableFactory<?> factory : sequenceOutputVariableFactories.values()) {
+					factory.setStartTime(searchStartTime);
+				}
+				for (StringSequenceOutputVariableFactory factory : stringSequenceOutputVariableFactories.values()) {
 					factory.setStartTime(searchStartTime);
 				}
 			}

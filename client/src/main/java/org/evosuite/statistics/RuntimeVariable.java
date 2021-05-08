@@ -105,6 +105,8 @@ public enum RuntimeVariable {
 	FitnessTimeline,
 	/** Population similarity values at different points in time */
 	DiversityTimeline,
+	/** Population fitness values at different points in time */
+	PopulationFitnessTimeline,
 	/** Obtained size values at different points in time */
 	Size_T0,
 	SizeTimeline,

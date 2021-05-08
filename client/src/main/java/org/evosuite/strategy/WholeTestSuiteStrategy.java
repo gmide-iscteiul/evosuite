@@ -28,6 +28,7 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.statistics.PopulationFitnessObserver;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -73,9 +74,12 @@ public class WholeTestSuiteStrategy extends TestGenerationStrategy {
 		// client hang if EvoSuite is
 		// executed with -prefix!
 
-		if(Properties.TRACK_DIVERSITY)
+		if (Properties.TRACK_DIVERSITY) {
 			algorithm.addListener(new DiversityObserver());
-
+		}
+		if (Properties.TRACK_POPULATION_FITNESS) {
+			algorithm.addListener(new PopulationFitnessObserver<TestSuiteChromosome>());
+		}
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)
 				|| ArrayUtil.contains(Properties.CRITERION, Criterion.STATEMENT)

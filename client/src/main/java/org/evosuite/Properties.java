@@ -743,6 +743,9 @@ public class Properties {
 
 	@Parameter(key = "track_diversity", group = "Search Algorithm", description = "Track population diversity")
 	public static boolean TRACK_DIVERSITY = false;
+	
+	@Parameter(key = "track_population_fitness", group = "Search Algorithm", description = "Track population fitness")
+	public static boolean TRACK_POPULATION_FITNESS = false;
 
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
