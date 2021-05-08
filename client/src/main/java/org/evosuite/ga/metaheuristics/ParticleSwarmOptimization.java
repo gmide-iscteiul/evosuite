@@ -65,8 +65,9 @@ public class ParticleSwarmOptimization<T extends Chromosome<T>> extends GeneticA
 				logger.info("Crossover failed.");
 				particle = population.get(i);
 			}
+			newGeneration.add(particle);
 		}
-
+		
 		// update local memory
 		for (int i = 0; i < newGeneration.size(); i++) {
 			T bestParticle = bestParticle(newGeneration.get(i), localMemory.get(i));
@@ -152,7 +153,6 @@ public class ParticleSwarmOptimization<T extends Chromosome<T>> extends GeneticA
 
 			this.notifyIteration();
 		}
-
 		TimeController.execute(this::updateBestIndividualFromArchive, "update from archive", 5_000);
 		notifySearchFinished();
 	}
