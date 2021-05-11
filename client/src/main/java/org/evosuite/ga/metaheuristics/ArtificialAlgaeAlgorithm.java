@@ -71,9 +71,7 @@ public class ArtificialAlgaeAlgorithm<T extends Chromosome<T>> extends GeneticAl
 			T algae = finalAlgae.clone();
 			// energy = directly proportional to position;
 			double energy = Properties.MAX_INITIAL_ENERGY - i;
-			if (energy < 0) {
-				energy = 0;
-			}
+			
 			while (energy > 0 && !isFinished()) {
 				energy -= (Properties.ENERGY_LOSS_RATE * Properties.MAX_INITIAL_ENERGY);
 				T selectedAlgae = selectionFunction.select(population).clone();
